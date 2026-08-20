@@ -1,0 +1,16 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=database.url;port=3306;database=chamadosti;user=root;password=root"
+  },
+  "Admin": {
+    "Usuario": "app",
+    "Senha": "app"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
