@@ -1,0 +1,241 @@
+@model ChamadosTI.Models.InventarioFormViewModel
+
+<div class="form-section-grid">
+    <section class="sub-card">
+        <h2 class="section-title">Dados do computador</h2>
+        <div class="form-row">
+            <div class="field">
+                <label asp-for="InventarioNumero"></label>
+                <input asp-for="InventarioNumero" class="input" />
+                <span class="field-error" asp-validation-for="InventarioNumero"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Patrimonio"></label>
+                <input asp-for="Patrimonio" class="input" />
+                <span class="field-error" asp-validation-for="Patrimonio"></span>
+            </div>
+            <div class="field">
+                <label asp-for="TipoEquipamento"></label>
+                <select asp-for="TipoEquipamento" asp-items="Model.TiposEquipamento" class="input"></select>
+                <span class="field-error" asp-validation-for="TipoEquipamento"></span>
+            </div>
+            <div class="field">
+                <label asp-for="SetorId"></label>
+                <select asp-for="SetorId" asp-items="Model.Setores" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+                <span class="field-error" asp-validation-for="SetorId"></span>
+            </div>
+            <div class="field">
+                <label asp-for="PessoaResponsavel"></label>
+                <input asp-for="PessoaResponsavel" class="input" />
+                <span class="field-error" asp-validation-for="PessoaResponsavel"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Ip"></label>
+                <input asp-for="Ip" class="input" />
+                <span class="field-error" asp-validation-for="Ip"></span>
+            </div>
+        </div>
+
+        <label class="check-inline" asp-for="EhBackup">
+            <input asp-for="EhBackup" type="checkbox" />
+            <span>Marcar como backup</span>
+        </label>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Softwares</h2>
+        <div class="form-row">
+            <div class="field">
+                <label asp-for="SistemaOperacionalId"></label>
+                <select asp-for="SistemaOperacionalId" asp-items="Model.SistemasOperacionais" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="field">
+                <label asp-for="OfficeId"></label>
+                <select asp-for="OfficeId" asp-items="Model.Offices" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="field">
+                <label asp-for="AntivirusId"></label>
+                <select asp-for="AntivirusId" asp-items="Model.Antiviruses" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+            <div class="field">
+                <label asp-for="ConexaoId"></label>
+                <select asp-for="ConexaoId" asp-items="Model.Conexoes" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Seleção de componentes</h2>
+        <div class="form-row component-pickers">
+            <div class="field">
+                <label asp-for="MemoriaIds"></label>
+                <div class="picker-list">
+                    @for (var i = 0; i < Model.MemoriasComponentes.Count; i++)
+                    {
+                        <label class="picker-item with-qty">
+                            <input asp-for="MemoriasComponentes[i].Selecionado" type="checkbox" />
+                            <span>@Model.MemoriasComponentes[i].Descricao</span>
+                            <input asp-for="MemoriasComponentes[i].Quantidade" type="number" min="1" max="99" class="input input-qty" />
+                            <input asp-for="MemoriasComponentes[i].Id" type="hidden" />
+                            <input asp-for="MemoriasComponentes[i].Descricao" type="hidden" />
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="ProcessadorId"></label>
+                <div class="picker-list">
+                    @foreach (var item in Model.ProcessadoresDisponiveis)
+                    {
+                        var id = int.Parse(item.Value!);
+                        <label class="picker-item">
+                            <input type="radio" name="ProcessadorId" value="@item.Value" @(Model.ProcessadorId == id ? "checked" : null) />
+                            <span>@item.Text</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="ArmazenamentoIds"></label>
+                <div class="picker-list">
+                    @for (var i = 0; i < Model.ArmazenamentosComponentes.Count; i++)
+                    {
+                        <label class="picker-item with-qty">
+                            <input asp-for="ArmazenamentosComponentes[i].Selecionado" type="checkbox" />
+                            <span>@Model.ArmazenamentosComponentes[i].Descricao</span>
+                            <input asp-for="ArmazenamentosComponentes[i].Quantidade" type="number" min="1" max="99" class="input input-qty" />
+                            <input asp-for="ArmazenamentosComponentes[i].Id" type="hidden" />
+                            <input asp-for="ArmazenamentosComponentes[i].Descricao" type="hidden" />
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="PerifericoIds"></label>
+                <div class="picker-list">
+                    @for (var i = 0; i < Model.PerifericosComponentes.Count; i++)
+                    {
+                        <label class="picker-item with-qty">
+                            <input asp-for="PerifericosComponentes[i].Selecionado" type="checkbox" />
+                            <span>@Model.PerifericosComponentes[i].Descricao</span>
+                            <input asp-for="PerifericosComponentes[i].Quantidade" type="number" min="1" max="99" class="input input-qty" />
+                            <input asp-for="PerifericosComponentes[i].Id" type="hidden" />
+                            <input asp-for="PerifericosComponentes[i].Descricao" type="hidden" />
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="CaboIds"></label>
+                <div class="picker-list">
+                    @for (var i = 0; i < Model.CabosComponentes.Count; i++)
+                    {
+                        <label class="picker-item with-qty">
+                            <input asp-for="CabosComponentes[i].Selecionado" type="checkbox" />
+                            <span>@Model.CabosComponentes[i].Descricao</span>
+                            <input asp-for="CabosComponentes[i].Quantidade" type="number" min="1" max="99" class="input input-qty" />
+                            <input asp-for="CabosComponentes[i].Id" type="hidden" />
+                            <input asp-for="CabosComponentes[i].Descricao" type="hidden" />
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Monitores</h2>
+        <input class="input picker-search" type="search" placeholder="Pesquisar monitor..." data-picker-search="#picker-monitores" />
+        <div class="picker-chips" data-picker-chips="#picker-monitores"></div>
+        <div class="picker-list" id="picker-monitores">
+            @foreach (var item in Model.MonitoresDisponiveis)
+            {
+                <label class="picker-item @(item.Disabled ? "is-disabled" : null)" data-search-text="@item.Text">
+                    <input type="checkbox" name="MonitorIds" value="@item.Value" @(Model.MonitorIds.Contains(int.Parse(item.Value!)) ? "checked" : null) @(item.Disabled ? "disabled" : null) />
+                    <span>@item.Text</span>
+                </label>
+            }
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Chaves vinculadas ao computador</h2>
+        <div class="form-row component-pickers">
+            <div class="field">
+                <label asp-for="ChaveWindowsIds"></label>
+                <input class="input picker-search" type="search" placeholder="Pesquisar chave Windows..." data-picker-search="#picker-chave-windows" />
+                <div class="picker-chips" data-picker-chips="#picker-chave-windows"></div>
+                <div class="picker-list" id="picker-chave-windows">
+                    @foreach (var item in Model.ChavesWindowsDisponiveis)
+                    {
+                        <label class="picker-item @(item.Disabled ? "is-disabled" : null)" data-search-text="@item.Text">
+                            <input type="checkbox" name="ChaveWindowsIds" value="@item.Value" @(Model.ChaveWindowsIds.Contains(int.Parse(item.Value!)) ? "checked" : null) @(item.Disabled ? "disabled" : null) />
+                            <span>@item.Text</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="ChaveOfficeIds"></label>
+                <input class="input picker-search" type="search" placeholder="Pesquisar chave Office..." data-picker-search="#picker-chave-office" />
+                <div class="picker-chips" data-picker-chips="#picker-chave-office"></div>
+                <div class="picker-list" id="picker-chave-office">
+                    @foreach (var item in Model.ChavesOfficeDisponiveis)
+                    {
+                        <label class="picker-item @(item.Disabled ? "is-disabled" : null)" data-search-text="@item.Text">
+                            <input type="checkbox" name="ChaveOfficeIds" value="@item.Value" @(Model.ChaveOfficeIds.Contains(int.Parse(item.Value!)) ? "checked" : null) @(item.Disabled ? "disabled" : null) />
+                            <span>@item.Text</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="ChaveAntivirusIds"></label>
+                <input class="input picker-search" type="search" placeholder="Pesquisar chave Antivírus..." data-picker-search="#picker-chave-antivirus" />
+                <div class="picker-chips" data-picker-chips="#picker-chave-antivirus"></div>
+                <div class="picker-list" id="picker-chave-antivirus">
+                    @foreach (var item in Model.ChavesAntivirusDisponiveis)
+                    {
+                        <label class="picker-item @(item.Disabled ? "is-disabled" : null)" data-search-text="@item.Text">
+                            <input type="checkbox" name="ChaveAntivirusIds" value="@item.Value" @(Model.ChaveAntivirusIds.Contains(int.Parse(item.Value!)) ? "checked" : null) @(item.Disabled ? "disabled" : null) />
+                            <span>@item.Text</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="field">
+                <label asp-for="ChaveOutrosIds"></label>
+                <input class="input picker-search" type="search" placeholder="Pesquisar chave Outros..." data-picker-search="#picker-chave-outros" />
+                <div class="picker-chips" data-picker-chips="#picker-chave-outros"></div>
+                <div class="picker-list" id="picker-chave-outros">
+                    @foreach (var item in Model.ChavesOutrosDisponiveis)
+                    {
+                        <label class="picker-item @(item.Disabled ? "is-disabled" : null)" data-search-text="@item.Text">
+                            <input type="checkbox" name="ChaveOutrosIds" value="@item.Value" @(Model.ChaveOutrosIds.Contains(int.Parse(item.Value!)) ? "checked" : null) @(item.Disabled ? "disabled" : null) />
+                            <span>@item.Text</span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Observações</h2>
+        <div class="field">
+            <label asp-for="Observacao"></label>
+            <textarea asp-for="Observacao" class="input input-textarea"></textarea>
+            <span class="field-error" asp-validation-for="Observacao"></span>
+        </div>
+    </section>
+</div>

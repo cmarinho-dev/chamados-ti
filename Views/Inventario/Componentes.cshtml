@@ -1,0 +1,31 @@
+@model ChamadosTI.Models.InventarioComponentesViewModel
+@{
+    ViewData["Title"] = "Componentes";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Biblioteca de componentes</h1>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert danger-alert">@error</div>
+    }
+
+    <div class="component-grid-2">
+        <partial name="_ComponenteSection" model='new ChamadosTI.Models.ComponenteSectionViewModel("Memórias", "memoria", Model.Memorias.Select(c => (c.Id, c.Descricao)).ToList())' />
+        <partial name="_ComponenteSection" model='new ChamadosTI.Models.ComponenteSectionViewModel("Processadores", "processador", Model.Processadores.Select(c => (c.Id, c.Descricao)).ToList())' />
+        <partial name="_ComponenteSection" model='new ChamadosTI.Models.ComponenteSectionViewModel("Armazenamentos", "armazenamento", Model.Armazenamentos.Select(c => (c.Id, c.Descricao)).ToList())' />
+        <partial name="_ComponenteSection" model='new ChamadosTI.Models.ComponenteSectionViewModel("Periféricos", "periferico", Model.Perifericos.Select(c => (c.Id, c.Descricao)).ToList())' />
+        <partial name="_ComponenteSection" model='new ChamadosTI.Models.ComponenteSectionViewModel("Cabos", "cabo", Model.Cabos.Select(c => (c.Id, c.Descricao)).ToList())' />
+    </div>
+</section>

@@ -1,0 +1,43 @@
+@model ChamadosTI.Models.InventarioMonitorFormViewModel
+
+<div class="form-section-grid">
+    <section class="sub-card">
+        <h2 class="section-title">Dados do monitor</h2>
+        <div class="form-row">
+            <div class="field">
+                <label asp-for="InventarioNumero"></label>
+                <input asp-for="InventarioNumero" class="input" />
+                <span class="field-error" asp-validation-for="InventarioNumero"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Patrimonio"></label>
+                <input asp-for="Patrimonio" class="input" />
+                <span class="field-error" asp-validation-for="Patrimonio"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Marca"></label>
+                <input asp-for="Marca" class="input" />
+                <span class="field-error" asp-validation-for="Marca"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Modelo"></label>
+                <input asp-for="Modelo" class="input" />
+                <span class="field-error" asp-validation-for="Modelo"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Polegadas"></label>
+                <input asp-for="Polegadas" class="input" placeholder="Ex.: 24" />
+                <span class="field-error" asp-validation-for="Polegadas"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Observação</h2>
+        <div class="field">
+            <label asp-for="Observacao"></label>
+            <textarea asp-for="Observacao" class="input input-textarea"></textarea>
+            <span class="field-error" asp-validation-for="Observacao"></span>
+        </div>
+    </section>
+</div>

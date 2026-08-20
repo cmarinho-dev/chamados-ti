@@ -1,0 +1,25 @@
+@model ChamadosTI.Models.InventarioOutrosDispositivoFormViewModel
+@{
+    ViewData["Title"] = "Novo dispositivo";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Novo dispositivo</h1>
+        </div>
+    </div>
+
+    <form asp-action="NovoOutroDispositivo" method="post" class="card form-grid" data-inventario-form>
+        @Html.AntiForgeryToken()
+        <partial name="_OutroDispositivoForm" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn primary">Salvar</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

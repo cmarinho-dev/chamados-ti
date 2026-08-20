@@ -1,0 +1,97 @@
+@model ChamadosTI.Models.InventarioOutrosViewModel
+@{
+    ViewData["Title"] = "Outros dispositivos";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Outros dispositivos</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn primary" asp-action="NovoOutroDispositivo">Novo dispositivo</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    <section class="card dashboard">
+        <h2 class="section-title">TVs, Projetores e Impressoras</h2>
+        <form asp-action="OutrosDispositivos" method="get" class="inventario-list-toolbar">
+            <input class="input" type="search" name="busca" value="@Model.Paginacao.Busca" placeholder="Buscar por inventario, patrimonio, responsavel, setor ou tipo" maxlength="120" />
+            <input type="hidden" name="itensPorPagina" value="@Model.Paginacao.ItensPorPagina" />
+            <button class="btn ghost" type="submit">Buscar</button>
+            <a class="btn ghost" asp-action="OutrosDispositivos" asp-route-itensPorPagina="@Model.Paginacao.ItensPorPagina">Limpar</a>
+        </form>
+
+        <div class="ticket-list">
+            @if (Model.Dispositivos.Count == 0)
+            {
+                <div class="muted">@(string.IsNullOrWhiteSpace(Model.Paginacao.Busca) ? "Nenhum dispositivo cadastrado." : "Nenhum dispositivo encontrado para a busca.")</div>
+            }
+            else
+            {
+                foreach (var item in Model.Dispositivos)
+                {
+                    <article class="ticket">
+                        <div class="ticket-header">
+                            <div>
+                                <strong>@item.InventarioNumero</strong>
+                                <div class="muted">@(item.PessoaResponsavel ?? "Sem responsável") • @item.Setor?.Nome</div>
+                            </div>
+                            <div class="list-badges">
+                                <span class="pill">@item.TipoEquipamento</span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Observacao))
+                        {
+                            <div class="ticket-meta">
+                                <span>@item.Observacao</span>
+                            </div>
+                        }
+
+                        <div class="status-form">
+                            <a class="btn ghost" asp-action="EditarOutroDispositivo" asp-route-id="@item.Id">Editar</a>
+                            <form asp-action="ExcluirOutroDispositivo" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Deseja remover este dispositivo?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn danger">Excluir</button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+
+        @if (Model.Paginacao.TotalPaginas > 1)
+        {
+            <div class="header-actions inventario-pagination">
+                <form asp-action="OutrosDispositivos" method="get" class="componente-inline-form" style="margin: 0;">
+                    <label class="muted" for="itensPorPaginaOutros">Itens por página</label>
+                    <select id="itensPorPaginaOutros" name="itensPorPagina" class="input" style="min-width: 90px;" onchange="this.form.submit()">
+                        @foreach (var i in new[] { 5, 10, 20, 50 })
+                        {
+                            <option value="@i" selected="@(Model.Paginacao.ItensPorPagina == i)">@(i)</option>
+                        }
+                    </select>
+                    <input type="hidden" name="pagina" value="1" />
+                    <input type="hidden" name="busca" value="@Model.Paginacao.Busca" />
+                </form>
+                @if (Model.Paginacao.PaginaAtual > 1)
+                {
+                    <a class="btn ghost" asp-action="OutrosDispositivos" asp-route-pagina="@(Model.Paginacao.PaginaAtual - 1)" asp-route-itensPorPagina="@Model.Paginacao.ItensPorPagina" asp-route-busca="@Model.Paginacao.Busca" aria-label="Página anterior">←</a>
+                }
+                <span class="muted">Página @Model.Paginacao.PaginaAtual de @Model.Paginacao.TotalPaginas</span>
+                @if (Model.Paginacao.PaginaAtual < Model.Paginacao.TotalPaginas)
+                {
+                    <a class="btn ghost" asp-action="OutrosDispositivos" asp-route-pagina="@(Model.Paginacao.PaginaAtual + 1)" asp-route-itensPorPagina="@Model.Paginacao.ItensPorPagina" asp-route-busca="@Model.Paginacao.Busca" aria-label="Próxima página">→</a>
+                }
+            </div>
+        }
+    </section>
+
+</section>

@@ -1,0 +1,31 @@
+@model ChamadosTI.Models.ComponenteSectionViewModel
+
+<section class="card componente-card">
+    <h2 class="section-title">@Model.Titulo</h2>
+
+    <form asp-action="AdicionarComponente" asp-route-tipo="@Model.Tipo" method="post" class="componente-inline-form">
+        @Html.AntiForgeryToken()
+        <input class="input" name="descricao" placeholder="Nova descrição" maxlength="140" />
+        <button type="submit" class="btn primary">Adicionar</button>
+    </form>
+
+    <div class="componente-lista">
+        @if (Model.Itens.Count == 0)
+        {
+            <div class="muted">Nenhum item cadastrado.</div>
+        }
+        else
+        {
+            foreach (var item in Model.Itens)
+            {
+                <div class="componente-item">
+                    <span>@item.Descricao</span>
+                    <form asp-action="ExcluirComponente" asp-route-tipo="@Model.Tipo" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Excluir componente?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn danger icon-btn">Excluir</button>
+                    </form>
+                </div>
+            }
+        }
+    </div>
+</section>

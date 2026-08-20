@@ -1,0 +1,65 @@
+@model ChamadosTI.Models.AdminSqlExecutorViewModel
+@{
+    ViewData["Title"] = "Executor SQL";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Admin</p>
+            <h1>Executor SQL</h1>
+        </div>
+        <div class="header-actions">
+            <a asp-action="Index" class="btn ghost">Voltar</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="muted">Use este painel apenas para tarefas administrativas. Comandos permitidos: SELECT, INSERT, UPDATE e DELETE.</p>
+
+        <form asp-action="SqlExecutor" method="post" class="js-status-token">
+            @Html.AntiForgeryToken()
+            <label for="Sql" class="sr-only">SQL</label>
+            <textarea id="Sql" name="Sql" rows="10" style="width:100%; resize:vertical; padding:12px; font-family:Consolas, monospace;">@Model.Sql</textarea>
+            <div class="header-actions" style="margin-top: 12px; justify-content:flex-start;">
+                <button type="submit" class="btn">Executar</button>
+            </div>
+        </form>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Mensagem))
+        {
+            <div style="margin-top: 16px; padding: 12px; border-radius: 12px; background: @(Model.TipoResultado == "erro" ? "#fff1f0" : "#f1f8f2"); border: 1px solid @(Model.TipoResultado == "erro" ? "#f7b8b0" : "#badfc9");">
+                <strong>@(Model.TipoResultado == "erro" ? "Erro" : "Sucesso")</strong>
+                <div>@Model.Mensagem</div>
+            </div>
+        }
+
+        @if (Model.Colunas != null && Model.Resultados != null)
+        {
+            <div style="margin-top: 16px; overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <thead>
+                        <tr>
+                            @foreach (var coluna in Model.Colunas)
+                            {
+                                <th style="text-align:left; padding:8px; border-bottom:1px solid #dfe6ec;">@coluna</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var linha in Model.Resultados)
+                        {
+                            <tr>
+                                @foreach (var coluna in Model.Colunas)
+                                {
+                                    var valor = linha.ContainsKey(coluna) ? linha[coluna] : null;
+                                    <td style="padding:8px; border-bottom:1px solid #f0f3f5;">@(valor ?? "")</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,30 @@
+@model ChamadosTI.Models.InventarioChavesViewModel
+@{
+    ViewData["Title"] = "Chaves";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Chaves de licenças</h1>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert danger-alert">@error</div>
+    }
+
+    <div class="component-grid-2">
+        <partial name="_ChaveSection" model='new ChamadosTI.Models.InventarioChaveSectionViewModel { Titulo = "Windows", TipoSlug = "windows", Itens = Model.Windows }' />
+        <partial name="_ChaveSection" model='new ChamadosTI.Models.InventarioChaveSectionViewModel { Titulo = "Office", TipoSlug = "office", Itens = Model.Office }' />
+        <partial name="_ChaveSection" model='new ChamadosTI.Models.InventarioChaveSectionViewModel { Titulo = "Antivírus", TipoSlug = "antivirus", Itens = Model.Antivirus }' />
+        <partial name="_ChaveSection" model='new ChamadosTI.Models.InventarioChaveSectionViewModel { Titulo = "Outros", TipoSlug = "outros", Itens = Model.Outros }' />
+    </div>
+</section>

@@ -1,0 +1,64 @@
+﻿@model ChamadosTI.Models.CriarChamadoViewModel
+@{
+    ViewData["Title"] = "Abrir Chamado";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Chamados TI</p>
+            <h1>Abrir um chamado</h1>
+            <p class="muted">Informe nome e setor para acionar a equipe de TI imediatamente.</p>
+        </div>
+        <div class="badge">Precisa de ajuda?</div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    <form asp-action="Index" method="post" class="card form-grid" data-open-ticket-form>
+        @Html.AntiForgeryToken()
+        <div class="form-field">
+            <label asp-for="NomeSolicitante"></label>
+            <div class="input-icon">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd"/>
+                </svg>
+                <input asp-for="NomeSolicitante" class="input" placeholder="Seu nome" autofocus data-first-field />
+            </div>
+            <span asp-validation-for="NomeSolicitante" class="field-error"></span>
+        </div>
+        <div class="form-field">
+            <label asp-for="Setor">Setor</label>
+            <div class="input-icon">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z" clip-rule="evenodd"/>
+                </svg>
+                <select asp-for="Setor" class="input js-placeholder-select is-placeholder" data-next-field>
+                    <option value="">Selecione</option>
+                    <option>APAF</option>
+                    <option>APDI</option>
+                    <option>APPLI</option>
+                    <option>EAP</option>
+                    <option>Estágio</option>
+                    <option>Gabinete</option>
+                    <option>NEAD</option>
+                    <option>NIT</option>
+                    <option>Seguro</option>
+                    <option>RH</option>
+                </select>
+            </div>
+            <span asp-validation-for="Setor" class="field-error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary">Enviar chamado</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

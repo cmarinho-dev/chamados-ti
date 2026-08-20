@@ -1,0 +1,45 @@
+@model ChamadosTI.Models.InventarioOutrosDispositivoFormViewModel
+
+<div class="form-section-grid">
+    <section class="sub-card">
+        <h2 class="section-title">Dados do dispositivo</h2>
+        <div class="form-row">
+            <div class="field">
+                <label asp-for="InventarioNumero"></label>
+                <input asp-for="InventarioNumero" class="input" />
+                <span class="field-error" asp-validation-for="InventarioNumero"></span>
+            </div>
+            <div class="field">
+                <label asp-for="Patrimonio"></label>
+                <input asp-for="Patrimonio" class="input" />
+                <span class="field-error" asp-validation-for="Patrimonio"></span>
+            </div>
+            <div class="field">
+                <label asp-for="TipoEquipamento"></label>
+                <select asp-for="TipoEquipamento" asp-items="Model.TiposEquipamento" class="input"></select>
+                <span class="field-error" asp-validation-for="TipoEquipamento"></span>
+            </div>
+            <div class="field">
+                <label asp-for="SetorId"></label>
+                <select asp-for="SetorId" asp-items="Model.Setores" class="input js-placeholder-select">
+                    <option value="">Selecione</option>
+                </select>
+                <span class="field-error" asp-validation-for="SetorId"></span>
+            </div>
+            <div class="field">
+                <label asp-for="PessoaResponsavel"></label>
+                <input asp-for="PessoaResponsavel" class="input" />
+                <span class="field-error" asp-validation-for="PessoaResponsavel"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="sub-card">
+        <h2 class="section-title">Observações</h2>
+        <div class="field">
+            <label asp-for="Observacao"></label>
+            <textarea asp-for="Observacao" class="input input-textarea"></textarea>
+            <span class="field-error" asp-validation-for="Observacao"></span>
+        </div>
+    </section>
+</div>

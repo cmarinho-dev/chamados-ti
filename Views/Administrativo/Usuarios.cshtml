@@ -1,0 +1,78 @@
+@model ChamadosTI.Models.AdministrativoUsuariosViewModel
+@{
+    ViewData["Title"] = "Usuários";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Administrativo</p>
+            <h1>Usuários por departamento</h1>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert danger-alert">@error</div>
+    }
+
+    <section class="card componente-card">
+        <h2 class="section-title">Adicionar usuário</h2>
+
+        <form asp-action="AdicionarUsuario" method="post" class="form-grid">
+            @Html.AntiForgeryToken()
+            <div class="form-row">
+                <div class="field">
+                    <label>Nome</label>
+                    <input class="input" name="nome" maxlength="160" />
+                </div>
+                <div class="field">
+                    <label>Usuário</label>
+                    <input class="input" name="usuario" maxlength="60" />
+                </div>
+                <div class="field">
+                    <label>Departamento</label>
+                    <select class="input" name="departamentoId" asp-items="Model.Departamentos">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn primary">Adicionar</button>
+        </form>
+
+        <form asp-action="Usuarios" method="get" class="componente-inline-form">
+            <input class="input" name="pesquisa" value="@Model.Pesquisa" placeholder="Buscar por nome, usuário ou departamento" maxlength="120" />
+            <button type="submit" class="btn ghost">Buscar</button>
+        </form>
+
+        <div class="componente-lista">
+            @if (Model.Usuarios.Count == 0)
+            {
+                <div class="muted">Nenhum usuário cadastrado.</div>
+            }
+            else
+            {
+                foreach (var item in Model.Usuarios)
+                {
+                    <article class="componente-item componente-item-stack">
+                        <div>
+                            <strong>@item.Nome</strong>
+                            <div class="muted">Usuário: @item.Usuario</div>
+                            <div class="muted">Departamento: @(item.Departamento?.Nome ?? "Sem departamento")</div>
+                        </div>
+                        <form asp-action="ExcluirUsuario" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Excluir usuário?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn danger icon-btn">Excluir</button>
+                        </form>
+                    </article>
+                }
+            }
+        </div>
+
+    </section>
+</section>

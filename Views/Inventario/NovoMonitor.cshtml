@@ -1,0 +1,25 @@
+@model ChamadosTI.Models.InventarioMonitorFormViewModel
+@{
+    ViewData["Title"] = "Novo monitor";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Novo monitor</h1>
+        </div>
+    </div>
+
+    <form asp-action="NovoMonitor" method="post" class="card form-grid">
+        @Html.AntiForgeryToken()
+        <partial name="_MonitorForm" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn primary">Salvar monitor</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

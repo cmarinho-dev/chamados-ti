@@ -1,0 +1,153 @@
+@model ChamadosTI.Models.InventarioRelatoriosViewModel
+@{
+    ViewData["Title"] = "Relatórios";
+    var query = Context.Request.QueryString.HasValue ? Context.Request.QueryString.Value : string.Empty;
+    var exportHref = string.IsNullOrEmpty(query)
+        ? Url.Action("Relatorios", "Inventario", new { export = "csv" })
+        : Url.Action("Relatorios", "Inventario") + query + "&export=csv";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Inventário</p>
+            <h1>Relatório de equipamentos</h1>
+        </div>
+        <div class="header-actions">
+            <a class="btn ghost" href="@exportHref">Exportar CSV</a>
+        </div>
+    </div>
+
+    <form method="get" class="card form-grid">
+        <input type="hidden" name="aba" value="@Model.Aba" />
+        <div class="form-row">
+            <div class="field">
+                <label>Tipo</label>
+                <select name="TipoEquipamento" asp-items="Model.TiposEquipamento" class="input js-placeholder-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Setor</label>
+                <select name="SetorId" asp-items="Model.Setores" class="input js-placeholder-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Responsável</label>
+                <input class="input" name="Responsavel" value="@Model.Responsavel" />
+            </div>
+            <div class="field">
+                <label>Tipo de chave</label>
+                <select name="TipoChave" asp-items="Model.TiposChave" class="input js-placeholder-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <label class="check-inline"><input type="checkbox" name="SomenteBackup" value="true" @(Model.SomenteBackup ? "checked" : null) /> Somente backup</label>
+            <label class="check-inline"><input type="checkbox" name="SemPatrimonio" value="true" @(Model.SemPatrimonio ? "checked" : null) /> Sem patrimônio</label>
+            <label class="check-inline"><input type="checkbox" name="SemResponsavel" value="true" @(Model.SemResponsavel ? "checked" : null) /> Sem responsável</label>
+            <label class="check-inline"><input type="checkbox" name="ComMonitor" value="true" @(Model.ComMonitor ? "checked" : null) /> Com monitor</label>
+            <label class="check-inline"><input type="checkbox" name="ComChave" value="true" @(Model.ComChave ? "checked" : null) /> Com chave</label>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn primary">Aplicar filtros</button>
+            <a class="btn ghost" asp-action="Relatorios">Limpar</a>
+        </div>
+    </form>
+
+    <div class="stats">
+        <div class="stat-card"><div class="muted">Total</div><div class="stat-value">@Model.TotalEquipamentos</div></div>
+        <div class="stat-card"><div class="muted">Computadores</div><div class="stat-value">@Model.TotalComputadores</div></div>
+        <div class="stat-card"><div class="muted">Notebooks</div><div class="stat-value">@Model.TotalNotebooks</div></div>
+        <div class="stat-card"><div class="muted">Outros</div><div class="stat-value">@Model.TotalOutros</div></div>
+        <div class="stat-card"><div class="muted">Monitores vinculados</div><div class="stat-value">@Model.TotalMonitoresVinculados</div></div>
+        <div class="stat-card"><div class="muted">Sem responsável</div><div class="stat-value">@Model.TotalSemResponsavel</div></div>
+        <div class="stat-card"><div class="muted">Sem patrimônio</div><div class="stat-value">@Model.TotalSemPatrimonio</div></div>
+    </div>
+
+    <div class="report-tabs">
+        <a class="btn @(Model.Aba == "geral" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="geral">Geral</a>
+        <a class="btn @(Model.Aba == "computadores" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="computadores">Computadores</a>
+        <a class="btn @(Model.Aba == "notebooks" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="notebooks">Notebooks</a>
+        <a class="btn @(Model.Aba == "licencas" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="licencas">Licenças</a>
+        <a class="btn @(Model.Aba == "monitores" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="monitores">Monitores</a>
+        @* <a class="btn @(Model.Aba == "conformidade" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="conformidade">Conformidade</a> *@
+    </div>
+
+    @if (Model.Aba == "licencas")
+    {
+        <div class="card">
+            <table class="table-report">
+                <thead><tr><th>Tipo</th><th>Em uso</th><th>Livres</th></tr></thead>
+                <tbody>
+                @foreach (var linha in Model.Licencas)
+                {
+                    <tr><td>@linha.Tipo</td><td>@linha.EmUso</td><td>@linha.Livres</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (Model.Aba == "monitores")
+    {
+        <div class="card">
+            <table class="table-report">
+                <thead><tr><th>Inventário</th><th>Modelo</th><th>Vínculos</th><th>Ação</th></tr></thead>
+                <tbody>
+                @foreach (var linha in Model.Monitores)
+                {
+                    <tr><td>@linha.InventarioMonitor</td><td>@linha.Modelo</td><td>@linha.Vinculos</td><td><a class="btn ghost report-search-btn" asp-action="Monitores" asp-route-busca="@linha.InventarioMonitor" asp-route-itensPorPagina="5">Detalhes</a></td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (Model.Aba == "conformidade")
+    {
+        <div class="card">
+            <table class="table-report">
+                <thead><tr><th>Inventário</th><th>Problema</th></tr></thead>
+                <tbody>
+                @foreach (var linha in Model.Conformidade)
+                {
+                    <tr><td>@linha.InventarioNumero</td><td>@linha.Problema</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <table class="table-report">
+                <thead>
+                    <tr>
+                        <th>Inventário</th><th>Patrimônio</th><th>Tipo</th><th>Setor</th><th>Responsável</th><th>Backup</th><th>Mon.</th><th>Chaves</th><th>Armaz.</th><th>IP</th><th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var linha in Model.Linhas)
+                {
+                    <tr>
+                        <td>@linha.InventarioNumero</td>
+                        <td>@(linha.Patrimonio ?? "-")</td>
+                        <td>@linha.TipoEquipamento</td>
+                        <td>@(linha.Setor ?? "-")</td>
+                        <td>@(linha.Responsavel ?? "-")</td>
+                        <td>@(linha.EhBackup ? "Sim" : "Não")</td>
+                        <td>@linha.Monitores</td>
+                        <td>@linha.Chaves</td>
+                        <td>@linha.Armazenamentos</td>
+                        <td>@(linha.Ip ?? "-")</td>
+                        <td>
+                            <a class="btn ghost report-search-btn" asp-action="@linha.PaginaBusca" asp-route-busca="@linha.InventarioNumero" asp-route-itensPorPagina="5">Detalhes</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

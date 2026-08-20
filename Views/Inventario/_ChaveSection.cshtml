@@ -1,0 +1,40 @@
+@model ChamadosTI.Models.InventarioChaveSectionViewModel
+
+<section class="card componente-card">
+    <h2 class="section-title">@Model.Titulo</h2>
+
+    <form asp-action="AdicionarChave" asp-route-tipo="@Model.TipoSlug" method="post" class="form-grid">
+        @Html.AntiForgeryToken()
+        <input class="input" name="produto" placeholder="Produto/versão" maxlength="80" />
+        <input class="input" name="chave" placeholder="Chave" maxlength="120" />
+        <textarea class="input input-textarea" name="observacao" placeholder="Observação (opcional)" maxlength="300"></textarea>
+        <button type="submit" class="btn primary">Adicionar chave</button>
+    </form>
+
+    <div class="componente-lista">
+        @if (Model.Itens.Count == 0)
+        {
+            <div class="muted">Nenhuma chave cadastrada.</div>
+        }
+        else
+        {
+            foreach (var item in Model.Itens)
+            {
+                <article class="componente-item componente-item-stack">
+                    <div>
+                        <strong>@item.Produto</strong>
+                        <div class="muted key-value">@item.Chave</div>
+                        @if (!string.IsNullOrWhiteSpace(item.Observacao))
+                        {
+                            <div class="muted">@item.Observacao</div>
+                        }
+                    </div>
+                    <form asp-action="ExcluirChave" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Excluir chave?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn danger icon-btn">Excluir</button>
+                    </form>
+                </article>
+            }
+        }
+    </div>
+</section>

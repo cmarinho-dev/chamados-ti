@@ -1,0 +1,39 @@
+﻿@model ChamadosTI.Models.LoginAdminViewModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<section class="page narrow">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Chamados TI</p>
+            <h1>Administração dos Chamados</h1>
+            <p class="muted">Entre com as credenciais de admin [ somente membros do NIT ].</p>
+        </div>
+    </div>
+
+    <form asp-action="Login" method="post" class="card form-grid">
+        @Html.AntiForgeryToken()
+        <div class="form-field">
+            <label asp-for="Usuario"></label>
+            <input asp-for="Usuario" class="input" placeholder="user123" autocomplete="username" />
+            <span asp-validation-for="Usuario" class="field-error"></span>
+        </div>
+        <div class="form-field">
+            <label asp-for="Senha"></label>
+            <input asp-for="Senha" type="password" class="input" placeholder="****" autocomplete="current-password" />
+            <span asp-validation-for="Senha" class="field-error"></span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary">Entrar</button>
+            <a class="btn ghost" href="/">Voltar</a>
+        </div>
+
+        <div class="field-error">@Html.ValidationSummary()</div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
