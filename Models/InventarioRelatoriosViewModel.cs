@@ -9,6 +9,7 @@ public class InventarioRelatoriosViewModel
     public int? SetorId { get; set; }
     public string? Responsavel { get; set; }
     public bool SomenteBackup { get; set; }
+    public bool OcultarBackups { get; set; }
     public bool SemPatrimonio { get; set; }
     public bool SemResponsavel { get; set; }
     public bool ComMonitor { get; set; }

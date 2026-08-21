@@ -5,6 +5,66 @@
     var exportHref = string.IsNullOrEmpty(query)
         ? Url.Action("Relatorios", "Inventario", new { export = "csv" })
         : Url.Action("Relatorios", "Inventario") + query + "&export=csv";
+
+    Dictionary<string, string> RotasAba(string aba)
+    {
+        var rotas = new Dictionary<string, string>
+        {
+            ["aba"] = aba
+        };
+
+        if (Model.TipoEquipamento.HasValue)
+        {
+            rotas["TipoEquipamento"] = ((int)Model.TipoEquipamento.Value).ToString();
+        }
+
+        if (Model.SetorId.HasValue)
+        {
+            rotas["SetorId"] = Model.SetorId.Value.ToString();
+        }
+
+        if (!string.IsNullOrWhiteSpace(Model.Responsavel))
+        {
+            rotas["Responsavel"] = Model.Responsavel;
+        }
+
+        if (Model.SomenteBackup)
+        {
+            rotas["SomenteBackup"] = "true";
+        }
+
+        if (Model.OcultarBackups)
+        {
+            rotas["OcultarBackups"] = "true";
+        }
+
+        if (Model.SemPatrimonio)
+        {
+            rotas["SemPatrimonio"] = "true";
+        }
+
+        if (Model.SemResponsavel)
+        {
+            rotas["SemResponsavel"] = "true";
+        }
+
+        if (Model.ComMonitor)
+        {
+            rotas["ComMonitor"] = "true";
+        }
+
+        if (Model.ComChave)
+        {
+            rotas["ComChave"] = "true";
+        }
+
+        if (Model.TipoChave.HasValue)
+        {
+            rotas["TipoChave"] = ((int)Model.TipoChave.Value).ToString();
+        }
+
+        return rotas;
+    }
 }
 
 <section class="page">
@@ -23,29 +83,30 @@
         <div class="form-row">
             <div class="field">
                 <label>Tipo</label>
-                <select name="TipoEquipamento" asp-items="Model.TiposEquipamento" class="input js-placeholder-select">
+                <select asp-for="TipoEquipamento" asp-items="Model.TiposEquipamento" class="input js-placeholder-select">
                     <option value="">Todos</option>
                 </select>
             </div>
             <div class="field">
                 <label>Setor</label>
-                <select name="SetorId" asp-items="Model.Setores" class="input js-placeholder-select">
+                <select asp-for="SetorId" asp-items="Model.Setores" class="input js-placeholder-select">
                     <option value="">Todos</option>
                 </select>
             </div>
             <div class="field">
                 <label>Responsável</label>
-                <input class="input" name="Responsavel" value="@Model.Responsavel" />
+                <input asp-for="Responsavel" class="input" />
             </div>
             <div class="field">
                 <label>Tipo de chave</label>
-                <select name="TipoChave" asp-items="Model.TiposChave" class="input js-placeholder-select">
+                <select asp-for="TipoChave" asp-items="Model.TiposChave" class="input js-placeholder-select">
                     <option value="">Todos</option>
                 </select>
             </div>
         </div>
         <div class="form-row">
             <label class="check-inline"><input type="checkbox" name="SomenteBackup" value="true" @(Model.SomenteBackup ? "checked" : null) /> Somente backup</label>
+            <label class="check-inline"><input type="checkbox" name="OcultarBackups" value="true" @(Model.OcultarBackups ? "checked" : null) /> Ocultar backups</label>
             <label class="check-inline"><input type="checkbox" name="SemPatrimonio" value="true" @(Model.SemPatrimonio ? "checked" : null) /> Sem patrimônio</label>
             <label class="check-inline"><input type="checkbox" name="SemResponsavel" value="true" @(Model.SemResponsavel ? "checked" : null) /> Sem responsável</label>
             <label class="check-inline"><input type="checkbox" name="ComMonitor" value="true" @(Model.ComMonitor ? "checked" : null) /> Com monitor</label>
@@ -68,11 +129,11 @@
     </div>
 
     <div class="report-tabs">
-        <a class="btn @(Model.Aba == "geral" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="geral">Geral</a>
-        <a class="btn @(Model.Aba == "computadores" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="computadores">Computadores</a>
-        <a class="btn @(Model.Aba == "notebooks" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="notebooks">Notebooks</a>
-        <a class="btn @(Model.Aba == "licencas" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="licencas">Licenças</a>
-        <a class="btn @(Model.Aba == "monitores" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="monitores">Monitores</a>
+        <a class="btn @(Model.Aba == "geral" ? "primary" : "ghost")" asp-action="Relatorios" asp-all-route-data='RotasAba("geral")'>Geral</a>
+        <a class="btn @(Model.Aba == "computadores" ? "primary" : "ghost")" asp-action="Relatorios" asp-all-route-data='RotasAba("computadores")'>Computadores</a>
+        <a class="btn @(Model.Aba == "notebooks" ? "primary" : "ghost")" asp-action="Relatorios" asp-all-route-data='RotasAba("notebooks")'>Notebooks</a>
+        <a class="btn @(Model.Aba == "licencas" ? "primary" : "ghost")" asp-action="Relatorios" asp-all-route-data='RotasAba("licencas")'>Licenças</a>
+        <a class="btn @(Model.Aba == "monitores" ? "primary" : "ghost")" asp-action="Relatorios" asp-all-route-data='RotasAba("monitores")'>Monitores</a>
         @* <a class="btn @(Model.Aba == "conformidade" ? "primary" : "ghost")" asp-action="Relatorios" asp-route-aba="conformidade">Conformidade</a> *@
     </div>
 

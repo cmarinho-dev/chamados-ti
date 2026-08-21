@@ -34,6 +34,10 @@ public class InventarioController : Controller
         }
 
         filtro.Aba = string.IsNullOrWhiteSpace(filtro.Aba) ? "geral" : filtro.Aba.ToLowerInvariant();
+        if (filtro.SomenteBackup)
+        {
+            filtro.OcultarBackups = false;
+        }
 
         var query = _db.InventarioItems
             .Include(i => i.Setor)
@@ -69,6 +73,10 @@ public class InventarioController : Controller
         if (filtro.SomenteBackup)
         {
             query = query.Where(i => i.EhBackup);
+        }
+        else if (filtro.OcultarBackups)
+        {
+            query = query.Where(i => !i.EhBackup);
         }
 
         if (filtro.SemPatrimonio)
@@ -1329,15 +1337,15 @@ public class InventarioController : Controller
     {
         model.Setores = await _db.InventarioSetores
             .OrderBy(s => s.Nome)
-            .Select(s => new SelectListItem(s.Nome, s.Id.ToString()))
+            .Select(s => new SelectListItem(s.Nome, s.Id.ToString(), model.SetorId == s.Id))
             .ToListAsync();
 
         model.TiposEquipamento = Enum.GetValues<InventarioTipoEquipamento>()
-            .Select(t => new SelectListItem(DescreverTipoEquipamento(t), ((int)t).ToString()))
+            .Select(t => new SelectListItem(DescreverTipoEquipamento(t), ((int)t).ToString(), model.TipoEquipamento == t))
             .ToList();
 
         model.TiposChave = Enum.GetValues<InventarioChaveTipo>()
-            .Select(t => new SelectListItem(DescreverTipoChave(t), ((int)t).ToString()))
+            .Select(t => new SelectListItem(DescreverTipoChave(t), ((int)t).ToString(), model.TipoChave == t))
             .ToList();
     }
 
