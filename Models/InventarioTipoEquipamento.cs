@@ -6,5 +6,6 @@ public enum InventarioTipoEquipamento
     Notebook = 2,
     TV = 3,
     Projetor = 4,
-    Impressora = 5
+    Impressora = 5,
+    Tablet = 6
 }

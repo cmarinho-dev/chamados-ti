@@ -484,7 +484,8 @@ public class InventarioController : Controller
         var termoBusca = busca?.Trim() ?? string.Empty;
         var query = _db.InventarioItems
             .Include(i => i.Setor)
-            .Where(i => i.TipoEquipamento == InventarioTipoEquipamento.TV
+            .Where(i => i.TipoEquipamento == InventarioTipoEquipamento.Tablet
+                || i.TipoEquipamento == InventarioTipoEquipamento.TV
                 || i.TipoEquipamento == InventarioTipoEquipamento.Projetor
                 || i.TipoEquipamento == InventarioTipoEquipamento.Impressora)
             .AsQueryable();
@@ -492,6 +493,7 @@ public class InventarioController : Controller
         if (termoBusca.Length > 0)
         {
             var termoTipo = termoBusca.ToLowerInvariant();
+            var buscaPorTablet = "tablet".Contains(termoTipo) || termoTipo.Contains("tablet");
             var buscaPorTv = "tv".Contains(termoTipo) || termoTipo.Contains("tv");
             var buscaPorProjetor = "projetor".Contains(termoTipo);
             var buscaPorImpressora = "impressora".Contains(termoTipo);
@@ -502,6 +504,7 @@ public class InventarioController : Controller
                 (i.PessoaResponsavel != null && i.PessoaResponsavel.Contains(termoBusca)) ||
                 (i.Setor != null && i.Setor.Nome.Contains(termoBusca)) ||
                 (i.Observacao != null && i.Observacao.Contains(termoBusca)) ||
+                (buscaPorTablet && i.TipoEquipamento == InventarioTipoEquipamento.Tablet) ||
                 (buscaPorTv && i.TipoEquipamento == InventarioTipoEquipamento.TV) ||
                 (buscaPorProjetor && i.TipoEquipamento == InventarioTipoEquipamento.Projetor) ||
                 (buscaPorImpressora && i.TipoEquipamento == InventarioTipoEquipamento.Impressora));
@@ -595,7 +598,7 @@ public class InventarioController : Controller
 
         var model = new InventarioOutrosDispositivoFormViewModel
         {
-            TipoEquipamento = InventarioTipoEquipamento.TV
+            TipoEquipamento = InventarioTipoEquipamento.Tablet
         };
 
         await CarregarListasOutrosAsync(model);
@@ -613,7 +616,7 @@ public class InventarioController : Controller
 
         if (!TipoEhOutro(model.TipoEquipamento))
         {
-            ModelState.AddModelError(nameof(model.TipoEquipamento), "Escolha TV, Projetor ou Impressora.");
+            ModelState.AddModelError(nameof(model.TipoEquipamento), "Escolha Tablet, TV, Projetor ou Impressora.");
         }
 
         if (!ModelState.IsValid)
@@ -685,7 +688,7 @@ public class InventarioController : Controller
 
         if (!TipoEhOutro(model.TipoEquipamento))
         {
-            ModelState.AddModelError(nameof(model.TipoEquipamento), "Escolha TV, Projetor ou Impressora.");
+            ModelState.AddModelError(nameof(model.TipoEquipamento), "Escolha Tablet, TV, Projetor ou Impressora.");
         }
 
         if (!ModelState.IsValid)
@@ -1230,6 +1233,7 @@ public class InventarioController : Controller
 
         model.TiposEquipamento = new List<SelectListItem>
         {
+            new("Tablet", ((int)InventarioTipoEquipamento.Tablet).ToString()),
             new("TV", ((int)InventarioTipoEquipamento.TV).ToString()),
             new("Projetor", ((int)InventarioTipoEquipamento.Projetor).ToString()),
             new("Impressora", ((int)InventarioTipoEquipamento.Impressora).ToString())
@@ -1238,7 +1242,8 @@ public class InventarioController : Controller
 
     private static bool TipoEhOutro(InventarioTipoEquipamento tipo)
     {
-        return tipo == InventarioTipoEquipamento.TV
+        return tipo == InventarioTipoEquipamento.Tablet
+            || tipo == InventarioTipoEquipamento.TV
             || tipo == InventarioTipoEquipamento.Projetor
             || tipo == InventarioTipoEquipamento.Impressora;
     }
@@ -1358,6 +1363,7 @@ public class InventarioController : Controller
             InventarioTipoEquipamento.TV => "TV",
             InventarioTipoEquipamento.Projetor => "Projetor",
             InventarioTipoEquipamento.Impressora => "Impressora",
+            InventarioTipoEquipamento.Tablet => "Tablet",
             _ => tipo.ToString()
         };
     }
