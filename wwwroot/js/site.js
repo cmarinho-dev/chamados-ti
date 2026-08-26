@@ -154,73 +154,21 @@
 
   setInterval(checkUpdates, 5000);
 
-  /* ---------------- ATUALIZAÇÃO DE STATUS ---------------- */
-
-  const statusOrder = ["Aberto", "Em andamento", "Finalizado"];
-
-  const tokenInput = document.querySelector(
-    ".js-status-token input[name='__RequestVerificationToken']"
-  );
-
-  const obterProximoStatus = (atual) => {
-    const idx = statusOrder.indexOf(atual);
-    if (idx === -1) return statusOrder[0];
-
-    return statusOrder[(idx + 1) % statusOrder.length];
-  };
-
-  const atualizarStatus = async (id, status) => {
-
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("situacao", status);
-
-    if (tokenInput) {
-      formData.append("__RequestVerificationToken", tokenInput.value);
-    }
-
-    const response = await fetch("/admin/atualizar-situacao", {
-      method: "POST",
-      body: formData
-    });
-
-    return response.ok;
-  };
-
-
-  document.addEventListener("click", async (event) => {
-    const ticket = event.target.closest(".ticket-clickable");
-    if (!ticket) return;
-
-    const id = ticket.dataset.ticketId;
-    const atual = ticket.dataset.status || "Aberto";
-    const proximo = obterProximoStatus(atual);
-
-    const ok = await atualizarStatus(id, proximo);
-    if (!ok) return;
-
-    ticket.dataset.status = proximo;
-    const pill = ticket.querySelector(".pill.status");
-    if (pill) {
-      pill.textContent = proximo;
-      pill.className = `pill status status-${proximo.replace(" ", "-").toLowerCase()}`;
-    }
-  });
 })();
 
 (() => {
   const form = document.querySelector("[data-open-ticket-form]");
   if (!form) return;
 
-  const nameInput = form.querySelector("[data-first-field]");
-  const setorSelect = form.querySelector("[data-next-field]");
-  const placeholderSelect = form.querySelector(".js-placeholder-select");
+  const personSelect = form.querySelector("[data-first-field]");
+  const periodSelect = form.querySelector("[data-next-field]");
+  const descriptionInput = form.querySelector("[data-description-field]");
+  const placeholderSelects = form.querySelectorAll(".js-placeholder-select");
   const storageKey = "chamadosTI.openTicketDraft";
 
-  const syncSelectPlaceholder = () => {
-    if (!placeholderSelect) return;
-    const hasValue = String(placeholderSelect.value || "").trim().length > 0;
-    placeholderSelect.classList.toggle("is-placeholder", !hasValue);
+  const syncSelectPlaceholder = (select) => {
+    const hasValue = String(select.value || "").trim().length > 0;
+    select.classList.toggle("is-placeholder", !hasValue);
   };
 
   const loadDraft = () => {
@@ -229,11 +177,14 @@
       if (!raw) return;
       const data = JSON.parse(raw);
       if (data && typeof data === "object") {
-        if (nameInput && typeof data.nome === "string" && data.nome.trim()) {
-          nameInput.value = data.nome;
+        if (personSelect && typeof data.inventarioItemId === "string" && data.inventarioItemId.trim()) {
+          personSelect.value = data.inventarioItemId;
         }
-        if (setorSelect && typeof data.setor === "string" && data.setor.trim()) {
-          setorSelect.value = data.setor;
+        if (periodSelect && typeof data.periodo === "string" && data.periodo.trim()) {
+          periodSelect.value = data.periodo;
+        }
+        if (descriptionInput && typeof data.descricao === "string") {
+          descriptionInput.value = data.descricao;
         }
       }
     } catch {
@@ -244,8 +195,9 @@
   const saveDraft = () => {
     try {
       const payload = {
-        nome: nameInput ? nameInput.value.trim() : "",
-        setor: setorSelect ? setorSelect.value : ""
+        inventarioItemId: personSelect ? personSelect.value : "",
+        periodo: periodSelect ? periodSelect.value : "",
+        descricao: descriptionInput ? descriptionInput.value : ""
       };
       window.localStorage.setItem(storageKey, JSON.stringify(payload));
     } catch {
@@ -254,37 +206,30 @@
   };
 
   loadDraft();
-  syncSelectPlaceholder();
-  if (placeholderSelect) {
-    placeholderSelect.addEventListener("change", syncSelectPlaceholder);
-  }
-  if (nameInput) {
-    nameInput.addEventListener("input", saveDraft);
-  }
-  if (setorSelect) {
-    setorSelect.addEventListener("change", saveDraft);
-  }
+  placeholderSelects.forEach((select) => {
+    syncSelectPlaceholder(select);
+    select.addEventListener("change", () => syncSelectPlaceholder(select));
+  });
+  personSelect?.addEventListener("change", saveDraft);
+  periodSelect?.addEventListener("change", saveDraft);
+  descriptionInput?.addEventListener("input", saveDraft);
 
   form.addEventListener("submit", saveDraft);
 
   form.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
 
-    if (event.target === nameInput) {
+    if (event.target === personSelect) {
       event.preventDefault();
-      if (setorSelect) {
-        setorSelect.focus();
+      if (periodSelect) {
+        periodSelect.focus();
       }
       return;
     }
 
-    if (event.target === setorSelect) {
+    if (event.target === periodSelect) {
       event.preventDefault();
-      if (typeof form.requestSubmit === "function") {
-        form.requestSubmit();
-      } else {
-        form.submit();
-      }
+      descriptionInput?.focus();
     }
   });
 })();

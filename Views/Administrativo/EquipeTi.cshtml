@@ -1,0 +1,59 @@
+@model ChamadosTI.Models.EquipeTiViewModel
+@{
+    ViewData["Title"] = "Equipe de TI";
+}
+
+<section class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Administrativo</p>
+            <h1>Equipe de TI</h1>
+            <p class="muted">Cadastre as pessoas que poderão assumir e finalizar chamados.</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert danger-alert">@error</div>
+    }
+
+    <section class="card componente-card">
+        <h2 class="section-title">Adicionar pessoa de TI</h2>
+
+        <form asp-action="AdicionarTecnico" method="post" class="componente-inline-form">
+            @Html.AntiForgeryToken()
+            <input class="input" name="nome" maxlength="160" placeholder="Nome completo" required />
+            <button type="submit" class="btn primary">Adicionar</button>
+        </form>
+
+        <form asp-action="EquipeTi" method="get" class="componente-inline-form">
+            <input class="input" name="pesquisa" value="@Model.Pesquisa" placeholder="Buscar por nome" maxlength="120" />
+            <button type="submit" class="btn ghost">Buscar</button>
+        </form>
+
+        <div class="componente-lista">
+            @if (Model.Tecnicos.Count == 0)
+            {
+                <div class="muted">Nenhuma pessoa cadastrada na equipe de TI.</div>
+            }
+            else
+            {
+                foreach (var tecnico in Model.Tecnicos)
+                {
+                    <article class="componente-item">
+                        <strong>@tecnico.Nome</strong>
+                        <form asp-action="ExcluirTecnico" asp-route-id="@tecnico.Id" method="post" onsubmit="return confirm('Remover esta pessoa da equipe de TI?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn danger icon-btn">Excluir</button>
+                        </form>
+                    </article>
+                }
+            }
+        </div>
+    </section>
+</section>

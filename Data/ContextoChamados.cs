@@ -13,6 +13,7 @@ public class ContextoChamados : DbContext
     }
 
     public DbSet<Chamado> Chamados => Set<Chamado>();
+    public DbSet<TecnicoTi> TecnicosTi => Set<TecnicoTi>();
     public DbSet<InventarioItem> InventarioItems => Set<InventarioItem>();
     public DbSet<InventarioMemoria> InventarioMemorias => Set<InventarioMemoria>();
     public DbSet<InventarioProcessador> InventarioProcessadores => Set<InventarioProcessador>();
@@ -34,6 +35,22 @@ public class ContextoChamados : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<TecnicoTi>()
+            .HasIndex(t => t.Nome)
+            .IsUnique();
+
+        modelBuilder.Entity<Chamado>()
+            .HasOne(c => c.InventarioItem)
+            .WithMany()
+            .HasForeignKey(c => c.InventarioItemId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Chamado>()
+            .HasOne(c => c.TecnicoTi)
+            .WithMany(t => t.Chamados)
+            .HasForeignKey(c => c.TecnicoTiId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<InventarioSetor>()
             .HasIndex(s => s.Nome)
             .IsUnique();

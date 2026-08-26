@@ -1,6 +1,6 @@
-﻿@model ChamadosTI.Models.PainelAdminViewModel
+@model ChamadosTI.Models.PainelAdminViewModel
 @{
-    ViewData["Title"] = "Admin";
+    ViewData["Title"] = "Chamados";
 }
 
 <section class="page">
@@ -8,7 +8,7 @@
     <div class="page-header">
         <div>
             <p class="eyebrow">Painel</p>
-            <h1>Chamados abertos</h1>
+            <h1>Atendimento de chamados</h1>
         </div>
         <div class="header-actions">
             <button type="button" class="btn ghost" data-audio-enable>Ativar som</button>
@@ -19,82 +19,136 @@
         </div>
     </div>
 
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert success">@success</div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert danger-alert">@error</div>
+    }
+
     <div class="stats">
         <div class="stat-card">
             <div class="muted">Total de chamados</div>
             <div class="stat-value" data-total-open>@Model.TotalChamados</div>
         </div>
         <div class="stat-card">
-            <div class="muted">Ultimo solicitante</div>
-            <div class="stat-value">@(!string.IsNullOrWhiteSpace(Model.UltimoSolicitante) ? Model.UltimoSolicitante :
-                                "-")</div>
-                <span class="sr-only" data-latest-id-value>@Model.UltimoId</span>
-            </div>
+            <div class="muted">Último solicitante</div>
+            <div class="stat-value">@(!string.IsNullOrWhiteSpace(Model.UltimoSolicitante) ? Model.UltimoSolicitante : "-")</div>
+            <span class="sr-only" data-latest-id-value>@Model.UltimoId</span>
         </div>
+    </div>
 
-        <form asp-action="Index" method="get" class="componente-inline-form" style="margin-bottom: 12px;">
-            <input class="input" name="pesquisa" value="@Model.Pesquisa" placeholder="Buscar por solicitante, setor, status ou descrição" />
-            <button type="submit" class="btn primary">Buscar</button>
-        </form>
+    <form asp-action="Index" method="get" class="componente-inline-form" style="margin-bottom: 12px;">
+        <input class="input" name="pesquisa" value="@Model.Pesquisa" placeholder="Buscar por nome, período, técnico, status ou descrição" />
+        <button type="submit" class="btn primary">Buscar</button>
+    </form>
 
-        <form asp-action="AtualizarSituacao" method="post" class="js-status-token">
-            @Html.AntiForgeryToken()
-        </form>
-
-        <div class="card dashboard" data-admin-listener="true" data-latest-id="@Model.UltimoId">
-            <div class="ticket-list" data-ticket-list>
-                @if (Model.Chamados.Count == 0)
+    <div class="card dashboard" data-admin-listener="true" data-latest-id="@Model.UltimoId">
+        <div class="ticket-list" data-ticket-list>
+            @if (Model.Chamados.Count == 0)
+            {
+                <div class="muted">Nenhum chamado encontrado.</div>
+            }
+            else
+            {
+                foreach (var chamado in Model.Chamados)
                 {
-                    <div class="muted">Nenhum chamado aberto no momento.</div>
-                }
-                else
-                {
-                    int index = Model.Chamados.Count;
+                    <article class="ticket" data-ticket-id="@chamado.Id" data-status="@chamado.Situacao">
+                        <div class="ticket-header">
+                            <strong>#@chamado.Id — @chamado.NomeSolicitante</strong>
+                            <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLowerInvariant()}")">@chamado.Situacao</div>
+                        </div>
 
-                    foreach (var chamado in Model.Chamados)
-                    {
-                        <article class="ticket ticket-clickable" data-ticket-id="@chamado.Id" data-status="@chamado.Situacao">
-                            <div class="ticket-header">
-                                <div>
-                                    <strong>#@index</strong>
-                                </div>
-                                <div>
-                                    <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLower()}")">
-                                        @chamado.Situacao</div>
-                                    </div>
-                                </div>
-                                <div class="ticket-meta">
-                                    <div class="ticket-meta-main">
-                                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             fill="currentColor" viewBox="0 0 24 24">
-                                            <path fill-rule="evenodd"
-                                                  d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                                                  clip-rule="evenodd" />
-                                        </svg>
-                                        <span>@chamado.NomeSolicitante </span>
-                                        <div class="ticket-meta-sep">| </div>
-                                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                             fill="currentColor" viewBox="0 0 24 24">
-                                            <path fill-rule="evenodd"
-                                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
-                                                  clip-rule="evenodd" />
-                                        </svg>
-                                        <span> @chamado.Setor </span>
-                                    </div>
-                                    <span>@chamado.CriadoEm.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</span>
-                                </div>
-                            </article>
+                        <div class="ticket-meta">
+                            <div class="ticket-meta-main">
+                                <span>@chamado.Setor</span>
+                                <div class="ticket-meta-sep">|</div>
+                                <span>Período: @chamado.Periodo</span>
+                                @if (chamado.InventarioItem != null)
+                                {
+                                    <div class="ticket-meta-sep">|</div>
+                                    <span>Inventário: @chamado.InventarioItem.InventarioNumero</span>
+                                }
+                            </div>
+                            <span>@chamado.CriadoEm.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
 
-                            index--;
+                        <div class="ticket-detail">
+                            <strong>Problema informado</strong>
+                            <p>@(string.IsNullOrWhiteSpace(chamado.DescricaoProblema) ? "Não informado." : chamado.DescricaoProblema)</p>
+                        </div>
+
+                        @if (chamado.Situacao == "Finalizado")
+                        {
+                            <div class="ticket-resolution">
+                                <strong>Responsável: @(chamado.TecnicoTi?.Nome ?? "Técnico removido")</strong>
+                                <p>@chamado.ParecerFinal</p>
+                                @if (chamado.FinalizadoEm.HasValue)
+                                {
+                                    <span class="muted">Finalizado em @chamado.FinalizadoEm.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</span>
+                                }
+                            </div>
+                            <form asp-action="ReabrirChamado" asp-route-id="@chamado.Id" method="post" class="ticket-actions">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn ghost">Reabrir chamado</button>
+                            </form>
                         }
-                    }
-                </div>
-            </div>
+                        else
+                        {
+                            @if (Model.TecnicosDisponiveis.Count == 0)
+                            {
+                                <div class="alert danger-alert">
+                                    Cadastre alguém na <a asp-controller="Administrativo" asp-action="EquipeTi"><u>Equipe de TI</u></a> para iniciar o atendimento.
+                                </div>
+                            }
+                            else
+                            {
+                                <form asp-action="AtribuirTecnico" asp-route-id="@chamado.Id" method="post" class="ticket-assignment-form">
+                                    @Html.AntiForgeryToken()
+                                    <div class="field">
+                                        <label for="tecnico-@chamado.Id">Responsável de TI</label>
+                                        <select id="tecnico-@chamado.Id" name="tecnicoTiId" class="input">
+                                            <option value="">Selecione</option>
+                                            @foreach (var tecnico in Model.TecnicosDisponiveis)
+                                            {
+                                                if (chamado.TecnicoTiId?.ToString() == tecnico.Value)
+                                                {
+                                                    <option value="@tecnico.Value" selected>@tecnico.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@tecnico.Value">@tecnico.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn ghost">@(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Iniciar atendimento")</button>
+                                </form>
+                            }
 
-            <form asp-action="Limpar" method="post" class="clear-form">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn danger" onclick="return confirm('Deseja limpar todos os chamados?');">
-                    Limpar chamados
-                </button>
-            </form>
-        </section>
+                            @if (chamado.TecnicoTiId.HasValue)
+                            {
+                                <form asp-action="FinalizarChamado" asp-route-id="@chamado.Id" method="post" class="ticket-resolution-form">
+                                    @Html.AntiForgeryToken()
+                                    <div class="field">
+                                        <label for="parecer-@chamado.Id">Parecer e o que foi feito</label>
+                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" maxlength="2000" required placeholder="Descreva a solução aplicada">@chamado.ParecerFinal</textarea>
+                                    </div>
+                                    <button type="submit" class="btn primary">Finalizar chamado</button>
+                                </form>
+                            }
+                        }
+                    </article>
+                }
+            }
+        </div>
+    </div>
+
+    <form asp-action="Limpar" method="post" class="clear-form">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn danger" onclick="return confirm('Deseja limpar todos os chamados?');">Limpar chamados</button>
+    </form>
+</section>

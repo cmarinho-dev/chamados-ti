@@ -1,5 +1,7 @@
 namespace ChamadosTI.Models;
 
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 public class PainelAdminViewModel
 {
     public IReadOnlyList<Chamado> Chamados { get; init; } = Array.Empty<Chamado>();
@@ -10,4 +12,5 @@ public class PainelAdminViewModel
     public int PaginaAtual { get; set; } = 1;
     public int TotalPaginas { get; set; }
     public int ItensPorPagina { get; set; } = 10;
+    public List<SelectListItem> TecnicosDisponiveis { get; set; } = [];
 }

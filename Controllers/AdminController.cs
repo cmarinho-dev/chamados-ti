@@ -4,6 +4,7 @@ using ChamadosTI.Data;
 using ChamadosTI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 
@@ -31,14 +32,21 @@ public class AdminController : Controller
         }
 
         var termo = pesquisa?.Trim();
-        var query = _db.Chamados.AsQueryable();
+        var query = _db.Chamados
+            .Include(c => c.InventarioItem)
+            .Include(c => c.TecnicoTi)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(termo))
         {
             query = query.Where(c =>
                 c.NomeSolicitante.Contains(termo) ||
                 c.Setor.Contains(termo) ||
-                c.Situacao.Contains(termo));
+                c.Situacao.Contains(termo) ||
+                c.Periodo.Contains(termo) ||
+                (c.DescricaoProblema != null && c.DescricaoProblema.Contains(termo)) ||
+                (c.ParecerFinal != null && c.ParecerFinal.Contains(termo)) ||
+                (c.TecnicoTi != null && c.TecnicoTi.Nome.Contains(termo)));
         }
 
         var chamados = await query
@@ -57,7 +65,11 @@ public class AdminController : Controller
             Pesquisa = termo,
             PaginaAtual = 1,
             TotalPaginas = 1,
-            ItensPorPagina = 20
+            ItensPorPagina = 20,
+            TecnicosDisponiveis = await _db.TecnicosTi
+                .OrderBy(t => t.Nome)
+                .Select(t => new SelectListItem(t.Nome, t.Id.ToString()))
+                .ToListAsync()
         };
 
         return View(viewModel);
@@ -100,19 +112,20 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    [HttpPost("atualizar-situacao")]
+    [HttpPost("atribuir-tecnico")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AtualizarSituacao(int id, string situacao)
+    public async Task<IActionResult> AtribuirTecnico(int id, int tecnicoTiId)
     {
         if (!EstaAutenticado())
         {
             return Unauthorized();
         }
 
-        var permitido = new[] { "Aberto", "Em andamento", "Finalizado" };
-        if (!permitido.Contains(situacao))
+        var tecnicoExiste = await _db.TecnicosTi.AnyAsync(t => t.Id == tecnicoTiId);
+        if (!tecnicoExiste)
         {
-            return BadRequest();
+            TempData["Error"] = "Selecione uma pessoa válida da equipe de TI.";
+            return RedirectToAction(nameof(Index));
         }
 
         var chamado = await _db.Chamados.FirstOrDefaultAsync(c => c.Id == id);
@@ -121,15 +134,80 @@ public class AdminController : Controller
             return NotFound();
         }
 
-        chamado.Situacao = situacao;
-        if (situacao == "Finalizado")
+        chamado.TecnicoTiId = tecnicoTiId;
+        if (chamado.Situacao == "Aberto")
         {
-            chamado.FinalizadoEm = DateTimeOffset.UtcNow;
+            chamado.Situacao = "Em andamento";
         }
-        else
+
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Responsável de TI associado ao chamado.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("finalizar")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinalizarChamado(int id, string? parecerFinal)
+    {
+        if (!EstaAutenticado())
         {
-            chamado.FinalizadoEm = null;
+            return Unauthorized();
         }
+
+        var parecer = string.IsNullOrWhiteSpace(parecerFinal) ? null : parecerFinal.Trim();
+        if (parecer == null)
+        {
+            TempData["Error"] = "Informe o parecer e o que foi feito antes de finalizar o chamado.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (parecer.Length > 2000)
+        {
+            TempData["Error"] = "O parecer deve ter no máximo 2000 caracteres.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var chamado = await _db.Chamados.FirstOrDefaultAsync(c => c.Id == id);
+        if (chamado == null)
+        {
+            return NotFound();
+        }
+
+        if (!chamado.TecnicoTiId.HasValue)
+        {
+            TempData["Error"] = "Associe uma pessoa da equipe de TI antes de finalizar o chamado.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        chamado.ParecerFinal = parecer;
+        chamado.Situacao = "Finalizado";
+        chamado.FinalizadoEm = DateTimeOffset.UtcNow;
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Chamado finalizado com parecer registrado.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("reabrir")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ReabrirChamado(int id)
+    {
+        if (!EstaAutenticado())
+        {
+            return Unauthorized();
+        }
+
+        var chamado = await _db.Chamados.FirstOrDefaultAsync(c => c.Id == id);
+        if (chamado == null)
+        {
+            return NotFound();
+        }
+
+        chamado.Situacao = chamado.TecnicoTiId.HasValue ? "Em andamento" : "Aberto";
+        chamado.FinalizadoEm = null;
         await _db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));

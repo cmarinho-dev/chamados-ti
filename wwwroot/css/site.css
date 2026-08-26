@@ -534,10 +534,6 @@ label {
   gap: 8px;
 }
 
-.ticket-clickable {
-  cursor: pointer;
-}
-
 .ticket-header {
   display: flex;
   justify-content: space-between;
@@ -569,6 +565,49 @@ label {
 
 .ticket-meta-sep {
   padding-inline: 6px;
+}
+
+.ticket-detail,
+.ticket-resolution {
+  border-radius: 10px;
+  padding: 12px;
+  background: #f6f8fb;
+  border: 1px solid var(--border);
+}
+
+.ticket-detail p,
+.ticket-resolution p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+}
+
+.ticket-resolution {
+  background: var(--success-soft);
+  border-color: #86efac;
+}
+
+.ticket-assignment-form,
+.ticket-resolution-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.ticket-resolution-form {
+  grid-template-columns: 1fr auto;
+}
+
+.ticket-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .ticket-assignment-form,
+  .ticket-resolution-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 .list-badges {

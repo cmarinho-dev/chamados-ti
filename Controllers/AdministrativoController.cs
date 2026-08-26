@@ -2,7 +2,6 @@ using ChamadosTI.Data;
 using ChamadosTI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChamadosTI.Controllers;
@@ -26,7 +25,7 @@ public class AdministrativoController : Controller
             return RedirectToAction("Login", "Admin");
         }
 
-        return RedirectToAction(nameof(Departamentos));
+        return RedirectToAction(nameof(EquipeTi));
     }
 
     [HttpGet("departamentos")]
@@ -47,9 +46,7 @@ public class AdministrativoController : Controller
 
         var model = new AdministrativoDepartamentosViewModel
         {
-            Departamentos = await query
-                .OrderBy(d => d.Nome)
-                .ToListAsync(),
+            Departamentos = await query.OrderBy(d => d.Nome).ToListAsync(),
             Pesquisa = termo,
             PaginaAtual = 1,
             TotalPaginas = 1,
@@ -98,18 +95,16 @@ public class AdministrativoController : Controller
             return Unauthorized();
         }
 
-        var departamento = await _db.InventarioSetores
-            .FirstOrDefaultAsync(d => d.Id == id);
-
+        var departamento = await _db.InventarioSetores.FirstOrDefaultAsync(d => d.Id == id);
         if (departamento == null)
         {
             return NotFound();
         }
 
-        var possuiUsuarios = await _db.AdministrativoUsuarios.AnyAsync(u => u.DepartamentoId == id);
-        if (possuiUsuarios)
+        var possuiUsuariosLegados = await _db.AdministrativoUsuarios.AnyAsync(u => u.DepartamentoId == id);
+        if (possuiUsuariosLegados)
         {
-            TempData["Error"] = "Não é possível excluir: departamento possui usuários vinculados.";
+            TempData["Error"] = "Não é possível excluir: departamento possui cadastros legados vinculados.";
             return RedirectToAction(nameof(Departamentos));
         }
 
@@ -128,7 +123,13 @@ public class AdministrativoController : Controller
     }
 
     [HttpGet("usuarios")]
-    public async Task<IActionResult> Usuarios(string? pesquisa)
+    public IActionResult Usuarios()
+    {
+        return RedirectToAction(nameof(EquipeTi));
+    }
+
+    [HttpGet("equipe-ti")]
+    public async Task<IActionResult> EquipeTi(string? pesquisa)
     {
         if (!EstaAutenticado())
         {
@@ -136,42 +137,25 @@ public class AdministrativoController : Controller
         }
 
         var termo = pesquisa?.Trim();
-        var query = _db.AdministrativoUsuarios
-            .Include(u => u.Departamento)
-            .AsQueryable();
+        var query = _db.TecnicosTi.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(termo))
         {
-            query = query.Where(u =>
-                u.Nome.Contains(termo) ||
-                u.Usuario.Contains(termo) ||
-                (u.Departamento != null && u.Departamento.Nome.Contains(termo)));
+            query = query.Where(t => t.Nome.Contains(termo));
         }
 
-        var departamentos = await _db.InventarioSetores
-            .OrderBy(d => d.Nome)
-            .ToListAsync();
-
-        var model = new AdministrativoUsuariosViewModel
+        var model = new EquipeTiViewModel
         {
-            Usuarios = await query
-                .OrderBy(u => u.Nome)
-                .ToListAsync(),
-            Departamentos = departamentos
-                .Select(d => new SelectListItem(d.Nome, d.Id.ToString()))
-                .ToList(),
-            Pesquisa = termo,
-            PaginaAtual = 1,
-            TotalPaginas = 1,
-            ItensPorPagina = 20
+            Tecnicos = await query.OrderBy(t => t.Nome).ToListAsync(),
+            Pesquisa = termo
         };
 
         return View(model);
     }
 
-    [HttpPost("usuarios")]
+    [HttpPost("equipe-ti")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AdicionarUsuario(string nome, string usuario, int departamentoId)
+    public async Task<IActionResult> AdicionarTecnico(string nome)
     {
         if (!EstaAutenticado())
         {
@@ -179,61 +163,59 @@ public class AdministrativoController : Controller
         }
 
         var nomeLimpo = Limpar(nome);
-        var usuarioLimpo = Limpar(usuario);
-
-        if (nomeLimpo == null || usuarioLimpo == null)
+        if (nomeLimpo == null)
         {
-            TempData["Error"] = "Preencha nome e usuário.";
-            return RedirectToAction(nameof(Usuarios));
+            TempData["Error"] = "Informe o nome da pessoa de TI.";
+            return RedirectToAction(nameof(EquipeTi));
         }
 
-        var departamentoExiste = await _db.InventarioSetores.AnyAsync(d => d.Id == departamentoId);
-        if (!departamentoExiste)
+        if (nomeLimpo.Length > 160)
         {
-            TempData["Error"] = "Departamento inválido.";
-            return RedirectToAction(nameof(Usuarios));
+            TempData["Error"] = "O nome deve ter no máximo 160 caracteres.";
+            return RedirectToAction(nameof(EquipeTi));
         }
 
-        var usuarioExiste = await _db.AdministrativoUsuarios.AnyAsync(u => u.Usuario == usuarioLimpo);
-        if (usuarioExiste)
+        var tecnicoExiste = await _db.TecnicosTi.AnyAsync(t => t.Nome == nomeLimpo);
+        if (tecnicoExiste)
         {
-            TempData["Error"] = "Usuário já cadastrado.";
-            return RedirectToAction(nameof(Usuarios));
+            TempData["Error"] = "Esta pessoa já está cadastrada na equipe de TI.";
+            return RedirectToAction(nameof(EquipeTi));
         }
 
-        _db.AdministrativoUsuarios.Add(new AdministrativoUsuario
-        {
-            Nome = nomeLimpo,
-            Usuario = usuarioLimpo,
-            DepartamentoId = departamentoId
-        });
-
+        _db.TecnicosTi.Add(new TecnicoTi { Nome = nomeLimpo });
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Usuário adicionado.";
-        return RedirectToAction(nameof(Usuarios));
+        TempData["Success"] = "Pessoa adicionada à equipe de TI.";
+        return RedirectToAction(nameof(EquipeTi));
     }
 
-    [HttpPost("usuarios/excluir/{id:int}")]
+    [HttpPost("equipe-ti/excluir/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ExcluirUsuario(int id)
+    public async Task<IActionResult> ExcluirTecnico(int id)
     {
         if (!EstaAutenticado())
         {
             return Unauthorized();
         }
 
-        var usuario = await _db.AdministrativoUsuarios.FirstOrDefaultAsync(u => u.Id == id);
-        if (usuario == null)
+        var tecnico = await _db.TecnicosTi.FirstOrDefaultAsync(t => t.Id == id);
+        if (tecnico == null)
         {
             return NotFound();
         }
 
-        _db.AdministrativoUsuarios.Remove(usuario);
+        var possuiChamados = await _db.Chamados.AnyAsync(c => c.TecnicoTiId == id);
+        if (possuiChamados)
+        {
+            TempData["Error"] = "Não é possível excluir: esta pessoa possui chamados vinculados.";
+            return RedirectToAction(nameof(EquipeTi));
+        }
+
+        _db.TecnicosTi.Remove(tecnico);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Usuário removido.";
-        return RedirectToAction(nameof(Usuarios));
+        TempData["Success"] = "Pessoa removida da equipe de TI.";
+        return RedirectToAction(nameof(EquipeTi));
     }
 
     private static string? Limpar(string? valor)
