@@ -160,7 +160,7 @@
   const form = document.querySelector("[data-open-ticket-form]");
   if (!form) return;
 
-  const personSelect = form.querySelector("[data-first-field]");
+  const personInput = form.querySelector("[data-first-field]");
   const periodSelect = form.querySelector("[data-next-field]");
   const descriptionInput = form.querySelector("[data-description-field]");
   const placeholderSelects = form.querySelectorAll(".js-placeholder-select");
@@ -177,8 +177,8 @@
       if (!raw) return;
       const data = JSON.parse(raw);
       if (data && typeof data === "object") {
-        if (personSelect && typeof data.inventarioItemId === "string" && data.inventarioItemId.trim()) {
-          personSelect.value = data.inventarioItemId;
+        if (personInput && typeof data.nome === "string" && data.nome.trim()) {
+          personInput.value = data.nome;
         }
         if (periodSelect && typeof data.periodo === "string" && data.periodo.trim()) {
           periodSelect.value = data.periodo;
@@ -195,7 +195,7 @@
   const saveDraft = () => {
     try {
       const payload = {
-        inventarioItemId: personSelect ? personSelect.value : "",
+        nome: personInput ? personInput.value.trim() : "",
         periodo: periodSelect ? periodSelect.value : "",
         descricao: descriptionInput ? descriptionInput.value : ""
       };
@@ -210,7 +210,7 @@
     syncSelectPlaceholder(select);
     select.addEventListener("change", () => syncSelectPlaceholder(select));
   });
-  personSelect?.addEventListener("change", saveDraft);
+  personInput?.addEventListener("input", saveDraft);
   periodSelect?.addEventListener("change", saveDraft);
   descriptionInput?.addEventListener("input", saveDraft);
 
@@ -219,7 +219,7 @@
   form.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
 
-    if (event.target === personSelect) {
+    if (event.target === personInput) {
       event.preventDefault();
       if (periodSelect) {
         periodSelect.focus();

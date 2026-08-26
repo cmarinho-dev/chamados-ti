@@ -2,13 +2,23 @@ using System.Diagnostics;
 using ChamadosTI.Data;
 using ChamadosTI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChamadosTI.Controllers;
 
 public class HomeController : Controller
 {
+    private static readonly string[] NomesOcultos =
+    [
+        "RESERVA",
+        "COMPUTADOR",
+        "DESCONHECIDO",
+        "NOTEBOOK",
+        "SALA",
+        "SERVIDOR",
+        "CABINE"
+    ];
+
     private readonly ContextoChamados _db;
 
     public HomeController(ContextoChamados db)
@@ -33,21 +43,23 @@ public class HomeController : Controller
             ModelState.AddModelError(nameof(model.Periodo), "Selecione Manhã ou Tarde.");
         }
 
+        var nomeSolicitante = Limpar(model.NomeSolicitante);
         InventarioItem? inventario = null;
-        if (model.InventarioItemId.HasValue)
+        if (nomeSolicitante != null && NomePermitido(nomeSolicitante))
         {
             inventario = await _db.InventarioItems
                 .Include(i => i.Setor)
-                .FirstOrDefaultAsync(i => i.Id == model.InventarioItemId.Value
-                    && (i.TipoEquipamento == InventarioTipoEquipamento.Computador
+                .Where(i => (i.TipoEquipamento == InventarioTipoEquipamento.Computador
                         || i.TipoEquipamento == InventarioTipoEquipamento.Notebook)
                     && i.PessoaResponsavel != null
-                    && i.PessoaResponsavel != "");
+                    && i.PessoaResponsavel == nomeSolicitante)
+                .OrderBy(i => i.InventarioNumero)
+                .FirstOrDefaultAsync();
         }
 
-        if (inventario == null)
+        if (inventario == null || !NomePermitido(inventario.PessoaResponsavel!))
         {
-            ModelState.AddModelError(nameof(model.InventarioItemId), "Selecione um nome disponível no inventário de computadores.");
+            ModelState.AddModelError(nameof(model.NomeSolicitante), "Selecione um nome disponível no inventário de computadores.");
         }
 
         if (!ModelState.IsValid)
@@ -76,22 +88,25 @@ public class HomeController : Controller
 
     private async Task CarregarPessoasDisponiveisAsync(CriarChamadoViewModel model)
     {
-        var inventarios = await _db.InventarioItems
-            .Include(i => i.Setor)
+        var nomes = await _db.InventarioItems
             .Where(i => (i.TipoEquipamento == InventarioTipoEquipamento.Computador
                     || i.TipoEquipamento == InventarioTipoEquipamento.Notebook)
                 && i.PessoaResponsavel != null
                 && i.PessoaResponsavel != "")
-            .OrderBy(i => i.PessoaResponsavel)
-            .ThenBy(i => i.InventarioNumero)
+            .Select(i => i.PessoaResponsavel!)
             .ToListAsync();
 
-        model.PessoasDisponiveis = inventarios
-            .Select(i => new SelectListItem(
-                $"{i.PessoaResponsavel} — {i.Setor?.Nome ?? "Sem setor"} (Inv. {i.InventarioNumero})",
-                i.Id.ToString(),
-                model.InventarioItemId == i.Id))
+        model.PessoasDisponiveis = nomes
+            .Select(nome => nome.Trim())
+            .Where(NomePermitido)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(nome => nome, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
+    }
+
+    private static bool NomePermitido(string nome)
+    {
+        return !NomesOcultos.Any(termo => nome.Contains(termo, StringComparison.OrdinalIgnoreCase));
     }
 
     private static string? Limpar(string? valor)

@@ -21,16 +21,20 @@
     <form asp-action="Index" method="post" class="card form-grid" data-open-ticket-form>
         @Html.AntiForgeryToken()
         <div class="form-field">
-            <label asp-for="InventarioItemId"></label>
+            <label asp-for="NomeSolicitante"></label>
             <div class="input-icon">
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
                     <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd"/>
                 </svg>
-                <select asp-for="InventarioItemId" asp-items="Model.PessoasDisponiveis" class="input js-placeholder-select" autofocus data-first-field>
-                    <option value="">Selecione seu nome</option>
-                </select>
+                <input asp-for="NomeSolicitante" class="input" list="nomes-solicitantes" placeholder="Digite ou selecione seu nome" autocomplete="off" autofocus data-first-field />
+                <datalist id="nomes-solicitantes">
+                    @foreach (var nome in Model.PessoasDisponiveis)
+                    {
+                        <option value="@nome"></option>
+                    }
+                </datalist>
             </div>
-            <span asp-validation-for="InventarioItemId" class="field-error"></span>
+            <span asp-validation-for="NomeSolicitante" class="field-error"></span>
         </div>
         <div class="form-field">
             <label asp-for="Periodo"></label>
