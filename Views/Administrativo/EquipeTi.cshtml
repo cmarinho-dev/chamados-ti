@@ -36,11 +36,6 @@
             <button type="submit" class="btn primary">Adicionar</button>
         </form>
 
-        <form asp-action="EquipeTi" method="get" class="componente-inline-form">
-            <input class="input" name="pesquisa" value="@Model.Pesquisa" placeholder="Buscar por nome" maxlength="120" />
-            <button type="submit" class="btn ghost">Buscar</button>
-        </form>
-
         <div class="componente-lista">
             @if (Model.Tecnicos.Count == 0)
             {

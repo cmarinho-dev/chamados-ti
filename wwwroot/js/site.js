@@ -476,3 +476,43 @@
     render();
   });
 })();
+
+(() => {
+  const dialogs = document.querySelectorAll("dialog.ticket-dialog");
+  if (!dialogs.length) return;
+
+  document.querySelectorAll("[data-dialog-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dialogId = button.getAttribute("data-dialog-open");
+      const dialog = dialogId ? document.getElementById(dialogId) : null;
+      if (!(dialog instanceof HTMLDialogElement)) return;
+
+      dialog.showModal();
+      const firstField = dialog.querySelector("select, textarea, input");
+      if (firstField instanceof HTMLTextAreaElement) {
+        firstField.dispatchEvent(new Event("input"));
+      }
+      firstField?.focus();
+    });
+  });
+
+  dialogs.forEach((dialog) => {
+    dialog.querySelectorAll("[data-dialog-close]").forEach((button) => {
+      button.addEventListener("click", () => dialog.close());
+    });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+
+  document.querySelectorAll("[data-finalize-ticket-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      const parecer = form.querySelector("textarea[name='parecerFinal']");
+      if (parecer && parecer.value.trim().length > 0) return;
+
+      const confirmou = window.confirm("O chamado será finalizado sem parecer. Deseja continuar?");
+      if (!confirmou) event.preventDefault();
+    });
+  });
+})();

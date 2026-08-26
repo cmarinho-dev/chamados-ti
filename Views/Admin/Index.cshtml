@@ -106,39 +106,84 @@
                             }
                             else
                             {
-                                <form asp-action="AtribuirTecnico" asp-route-id="@chamado.Id" method="post" class="ticket-assignment-form">
-                                    @Html.AntiForgeryToken()
-                                    <div class="field">
-                                        <label for="tecnico-@chamado.Id">Responsável de TI</label>
-                                        <select id="tecnico-@chamado.Id" name="tecnicoTiId" class="input">
-                                            <option value="">Selecione</option>
-                                            @foreach (var tecnico in Model.TecnicosDisponiveis)
-                                            {
-                                                if (chamado.TecnicoTiId?.ToString() == tecnico.Value)
-                                                {
-                                                    <option value="@tecnico.Value" selected>@tecnico.Text</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@tecnico.Value">@tecnico.Text</option>
-                                                }
-                                            }
-                                        </select>
+                                <div class="ticket-responsible">
+                                    <div class="ticket-responsible-name">
+                                        <span class="muted">Responsável de TI</span>
+                                        <strong>@(chamado.TecnicoTi?.Nome ?? "Não definido")</strong>
                                     </div>
-                                    <button type="submit" class="btn ghost">@(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Iniciar atendimento")</button>
-                                </form>
-                            }
+                                    <div class="ticket-actions">
+                                        <button type="button" class="btn ghost" data-dialog-open="responsavel-dialog-@chamado.Id">
+                                            @(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Definir responsável")
+                                        </button>
+                                        @if (chamado.TecnicoTiId.HasValue)
+                                        {
+                                            <button type="button" class="btn primary" data-dialog-open="finalizar-dialog-@chamado.Id">Finalizar chamado</button>
+                                        }
+                                    </div>
+                                </div>
 
-                            @if (chamado.TecnicoTiId.HasValue)
-                            {
-                                <form asp-action="FinalizarChamado" asp-route-id="@chamado.Id" method="post" class="ticket-resolution-form">
-                                    @Html.AntiForgeryToken()
-                                    <div class="field">
-                                        <label for="parecer-@chamado.Id">Parecer e o que foi feito (opcional)</label>
-                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" rows="2" maxlength="2000" placeholder="Descreva a solução aplicada, se desejar">@chamado.ParecerFinal</textarea>
+                                <dialog id="responsavel-dialog-@chamado.Id" class="ticket-dialog" aria-labelledby="responsavel-titulo-@chamado.Id">
+                                    <div class="ticket-dialog-content">
+                                        <div class="ticket-dialog-header">
+                                            <div>
+                                                <span class="eyebrow">Chamado #@chamado.Id</span>
+                                                <h2 id="responsavel-titulo-@chamado.Id">@(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Definir responsável")</h2>
+                                            </div>
+                                            <button type="button" class="ticket-dialog-close" data-dialog-close aria-label="Fechar">×</button>
+                                        </div>
+                                        <form asp-action="AtribuirTecnico" asp-route-id="@chamado.Id" method="post" class="ticket-dialog-form">
+                                            @Html.AntiForgeryToken()
+                                            <div class="field">
+                                                <label for="tecnico-@chamado.Id">Responsável de TI</label>
+                                                <select id="tecnico-@chamado.Id" name="tecnicoTiId" class="input" required>
+                                                    <option value="">Selecione</option>
+                                                    @foreach (var tecnico in Model.TecnicosDisponiveis)
+                                                    {
+                                                        if (chamado.TecnicoTiId?.ToString() == tecnico.Value)
+                                                        {
+                                                            <option value="@tecnico.Value" selected>@tecnico.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@tecnico.Value">@tecnico.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="ticket-dialog-actions">
+                                                <button type="button" class="btn ghost" data-dialog-close>Cancelar</button>
+                                                <button type="submit" class="btn primary">Salvar responsável</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                    <button type="submit" class="btn primary">Finalizar chamado</button>
-                                </form>
+                                </dialog>
+
+                                @if (chamado.TecnicoTiId.HasValue)
+                                {
+                                    <dialog id="finalizar-dialog-@chamado.Id" class="ticket-dialog" aria-labelledby="finalizar-titulo-@chamado.Id">
+                                        <div class="ticket-dialog-content">
+                                            <div class="ticket-dialog-header">
+                                                <div>
+                                                    <span class="eyebrow">Chamado #@chamado.Id</span>
+                                                    <h2 id="finalizar-titulo-@chamado.Id">Finalizar chamado</h2>
+                                                </div>
+                                                <button type="button" class="ticket-dialog-close" data-dialog-close aria-label="Fechar">×</button>
+                                            </div>
+                                            <form asp-action="FinalizarChamado" asp-route-id="@chamado.Id" method="post" class="ticket-dialog-form" data-finalize-ticket-form>
+                                                @Html.AntiForgeryToken()
+                                                <div class="field">
+                                                    <label for="parecer-@chamado.Id">Parecer e o que foi feito (opcional)</label>
+                                                    <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" rows="2" maxlength="2000" placeholder="Descreva a solução aplicada, se desejar">@chamado.ParecerFinal</textarea>
+                                                    <span class="muted">Se deixar em branco, será solicitada uma confirmação antes de finalizar.</span>
+                                                </div>
+                                                <div class="ticket-dialog-actions">
+                                                    <button type="button" class="btn ghost" data-dialog-close>Cancelar</button>
+                                                    <button type="submit" class="btn primary">Confirmar finalização</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </dialog>
+                                }
                             }
                         }
                     </article>

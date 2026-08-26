@@ -129,28 +129,19 @@ public class AdministrativoController : Controller
     }
 
     [HttpGet("equipe-ti")]
-    public async Task<IActionResult> EquipeTi(string? pesquisa)
+    public async Task<IActionResult> EquipeTi()
     {
         if (!EstaAutenticado())
         {
             return RedirectToAction("Login", "Admin");
         }
 
-        var termo = pesquisa?.Trim();
-        var query = _db.TecnicosTi.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(termo))
-        {
-            query = query.Where(t => t.Nome.Contains(termo));
-        }
-
         var model = new EquipeTiViewModel
         {
-            Tecnicos = await query
+            Tecnicos = await _db.TecnicosTi
                 .OrderBy(t => t.Periodo)
                 .ThenBy(t => t.Nome)
-                .ToListAsync(),
-            Pesquisa = termo
+                .ToListAsync()
         };
 
         return View(model);
