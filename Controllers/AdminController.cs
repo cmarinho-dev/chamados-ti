@@ -157,13 +157,7 @@ public class AdminController : Controller
         }
 
         var parecer = string.IsNullOrWhiteSpace(parecerFinal) ? null : parecerFinal.Trim();
-        if (parecer == null)
-        {
-            TempData["Error"] = "Informe o parecer e o que foi feito antes de finalizar o chamado.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (parecer.Length > 2000)
+        if (parecer?.Length > 2000)
         {
             TempData["Error"] = "O parecer deve ter no máximo 2000 caracteres.";
             return RedirectToAction(nameof(Index));
@@ -186,7 +180,7 @@ public class AdminController : Controller
         chamado.FinalizadoEm = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Chamado finalizado com parecer registrado.";
+        TempData["Success"] = "Chamado finalizado com sucesso.";
 
         return RedirectToAction(nameof(Index));
     }

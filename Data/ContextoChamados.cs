@@ -39,6 +39,9 @@ public class ContextoChamados : DbContext
             .HasIndex(t => t.Nome)
             .IsUnique();
 
+        modelBuilder.Entity<TecnicoTi>()
+            .HasIndex(t => new { t.Periodo, t.OrdemDistribuicao });
+
         modelBuilder.Entity<Chamado>()
             .HasOne(c => c.InventarioItem)
             .WithMany()

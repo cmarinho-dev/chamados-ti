@@ -146,7 +146,10 @@ public class AdministrativoController : Controller
 
         var model = new EquipeTiViewModel
         {
-            Tecnicos = await query.OrderBy(t => t.Nome).ToListAsync(),
+            Tecnicos = await query
+                .OrderBy(t => t.Periodo)
+                .ThenBy(t => t.Nome)
+                .ToListAsync(),
             Pesquisa = termo
         };
 
@@ -155,7 +158,7 @@ public class AdministrativoController : Controller
 
     [HttpPost("equipe-ti")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AdicionarTecnico(string nome)
+    public async Task<IActionResult> AdicionarTecnico(string nome, string periodo)
     {
         if (!EstaAutenticado())
         {
@@ -175,6 +178,12 @@ public class AdministrativoController : Controller
             return RedirectToAction(nameof(EquipeTi));
         }
 
+        if (!PeriodoValido(periodo))
+        {
+            TempData["Error"] = "Selecione o período Manhã ou Tarde.";
+            return RedirectToAction(nameof(EquipeTi));
+        }
+
         var tecnicoExiste = await _db.TecnicosTi.AnyAsync(t => t.Nome == nomeLimpo);
         if (tecnicoExiste)
         {
@@ -182,10 +191,44 @@ public class AdministrativoController : Controller
             return RedirectToAction(nameof(EquipeTi));
         }
 
-        _db.TecnicosTi.Add(new TecnicoTi { Nome = nomeLimpo });
+        _db.TecnicosTi.Add(new TecnicoTi
+        {
+            Nome = nomeLimpo,
+            Periodo = periodo,
+            OrdemDistribuicao = Random.Shared.Next(1, 1_000_000_000)
+        });
         await _db.SaveChangesAsync();
 
         TempData["Success"] = "Pessoa adicionada à equipe de TI.";
+        return RedirectToAction(nameof(EquipeTi));
+    }
+
+    [HttpPost("equipe-ti/periodo/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AtualizarPeriodoTecnico(int id, string periodo)
+    {
+        if (!EstaAutenticado())
+        {
+            return Unauthorized();
+        }
+
+        if (!PeriodoValido(periodo))
+        {
+            TempData["Error"] = "Selecione o período Manhã ou Tarde.";
+            return RedirectToAction(nameof(EquipeTi));
+        }
+
+        var tecnico = await _db.TecnicosTi.FirstOrDefaultAsync(t => t.Id == id);
+        if (tecnico == null)
+        {
+            return NotFound();
+        }
+
+        tecnico.Periodo = periodo;
+        tecnico.OrdemDistribuicao = Random.Shared.Next(1, 1_000_000_000);
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Período da pessoa de TI atualizado.";
         return RedirectToAction(nameof(EquipeTi));
     }
 
@@ -221,6 +264,11 @@ public class AdministrativoController : Controller
     private static string? Limpar(string? valor)
     {
         return string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
+    }
+
+    private static bool PeriodoValido(string periodo)
+    {
+        return periodo is "Manhã" or "Tarde";
     }
 
     private bool EstaAutenticado()

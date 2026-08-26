@@ -63,15 +63,20 @@ public class HomeController : Controller
             return View(model);
         }
 
+        var periodo = ObterPeriodoAtual();
+        var tecnico = await SelecionarProximoTecnicoAsync(periodo);
+        var agora = DateTimeOffset.UtcNow;
+
         var chamado = new Chamado
         {
             NomeSolicitante = inventario!.PessoaResponsavel!.Trim(),
             InventarioItemId = inventario.Id,
             Setor = inventario.Setor?.Nome ?? "Não informado",
-            Periodo = ObterPeriodoAtual(),
+            Periodo = periodo,
+            TecnicoTiId = tecnico?.Id,
             DescricaoProblema = Limpar(model.DescricaoProblema),
             Situacao = "Aberto",
-            CriadoEm = DateTimeOffset.UtcNow
+            CriadoEm = agora
         };
 
         _db.Chamados.Add(chamado);
@@ -110,6 +115,23 @@ public class HomeController : Controller
         return agora.Hour < 12 || (agora.Hour == 12 && agora.Minute == 0)
             ? "Manhã"
             : "Tarde";
+    }
+
+    private async Task<TecnicoTi?> SelecionarProximoTecnicoAsync(string periodo)
+    {
+        var tecnicos = await _db.TecnicosTi
+            .Where(t => t.Periodo == periodo)
+            .OrderBy(t => t.OrdemDistribuicao)
+            .ThenBy(t => t.Id)
+            .ToListAsync();
+
+        var tecnico = tecnicos.FirstOrDefault();
+        if (tecnico != null)
+        {
+            tecnico.OrdemDistribuicao = tecnicos.Max(t => t.OrdemDistribuicao) + 1;
+        }
+
+        return tecnico;
     }
 
     private static string? Limpar(string? valor)

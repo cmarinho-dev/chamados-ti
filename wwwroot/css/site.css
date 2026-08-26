@@ -712,6 +712,21 @@ label {
   gap: 8px;
 }
 
+.equipe-ti-add-form {
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, 220px) auto;
+}
+
+.equipe-ti-item-actions,
+.equipe-ti-period-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.equipe-ti-period-form .input {
+  min-width: 120px;
+}
+
 .componente-lista {
   display: grid;
   gap: 7px;
@@ -867,6 +882,17 @@ label {
 
   .componente-inline-form {
     grid-template-columns: 1fr;
+  }
+
+  .equipe-ti-item,
+  .equipe-ti-item-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .equipe-ti-period-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
   }
 
   .inventario-list-toolbar {

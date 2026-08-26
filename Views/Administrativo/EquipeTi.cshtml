@@ -8,7 +8,7 @@
         <div>
             <p class="eyebrow">Administrativo</p>
             <h1>Equipe de TI</h1>
-            <p class="muted">Cadastre as pessoas que poderão assumir e finalizar chamados.</p>
+            <p class="muted">Cadastre os membros do NIT e defina o período de atendimento. Os chamados serão distribuídos automaticamente em rodízio.</p>
         </div>
     </div>
 
@@ -25,9 +25,14 @@
     <section class="card componente-card">
         <h2 class="section-title">Adicionar pessoa de TI</h2>
 
-        <form asp-action="AdicionarTecnico" method="post" class="componente-inline-form">
+        <form asp-action="AdicionarTecnico" method="post" class="componente-inline-form equipe-ti-add-form">
             @Html.AntiForgeryToken()
             <input class="input" name="nome" maxlength="160" placeholder="Nome completo" required />
+            <select class="input" name="periodo" required>
+                <option value="">Selecione o período</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+            </select>
             <button type="submit" class="btn primary">Adicionar</button>
         </form>
 
@@ -45,12 +50,33 @@
             {
                 foreach (var tecnico in Model.Tecnicos)
                 {
-                    <article class="componente-item">
-                        <strong>@tecnico.Nome</strong>
-                        <form asp-action="ExcluirTecnico" asp-route-id="@tecnico.Id" method="post" onsubmit="return confirm('Remover esta pessoa da equipe de TI?');">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn danger icon-btn">Excluir</button>
-                        </form>
+                    <article class="componente-item equipe-ti-item">
+                        <div>
+                            <strong>@tecnico.Nome</strong>
+                            <div class="muted">Período atual: @tecnico.Periodo</div>
+                        </div>
+                        <div class="equipe-ti-item-actions">
+                            <form asp-action="AtualizarPeriodoTecnico" asp-route-id="@tecnico.Id" method="post" class="equipe-ti-period-form">
+                                @Html.AntiForgeryToken()
+                                <select class="input" name="periodo" aria-label="Período de @tecnico.Nome">
+                                    @if (tecnico.Periodo == "Manhã")
+                                    {
+                                        <option value="Manhã" selected>Manhã</option>
+                                        <option value="Tarde">Tarde</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Manhã">Manhã</option>
+                                        <option value="Tarde" selected>Tarde</option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn ghost icon-btn">Salvar período</button>
+                            </form>
+                            <form asp-action="ExcluirTecnico" asp-route-id="@tecnico.Id" method="post" onsubmit="return confirm('Remover esta pessoa da equipe de TI?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn danger icon-btn">Excluir</button>
+                            </form>
+                        </div>
                     </article>
                 }
             }

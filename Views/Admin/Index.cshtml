@@ -85,7 +85,7 @@
                         {
                             <div class="ticket-resolution">
                                 <strong>Responsável: @(chamado.TecnicoTi?.Nome ?? "Técnico removido")</strong>
-                                <p>@chamado.ParecerFinal</p>
+                                <p>@(string.IsNullOrWhiteSpace(chamado.ParecerFinal) ? "Nenhum parecer informado." : chamado.ParecerFinal)</p>
                                 @if (chamado.FinalizadoEm.HasValue)
                                 {
                                     <span class="muted">Finalizado em @chamado.FinalizadoEm.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</span>
@@ -134,8 +134,8 @@
                                 <form asp-action="FinalizarChamado" asp-route-id="@chamado.Id" method="post" class="ticket-resolution-form">
                                     @Html.AntiForgeryToken()
                                     <div class="field">
-                                        <label for="parecer-@chamado.Id">Parecer e o que foi feito</label>
-                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" rows="2" maxlength="2000" required placeholder="Descreva a solução aplicada">@chamado.ParecerFinal</textarea>
+                                        <label for="parecer-@chamado.Id">Parecer e o que foi feito (opcional)</label>
+                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" rows="2" maxlength="2000" placeholder="Descreva a solução aplicada, se desejar">@chamado.ParecerFinal</textarea>
                                     </div>
                                     <button type="submit" class="btn primary">Finalizar chamado</button>
                                 </form>
