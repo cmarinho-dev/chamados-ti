@@ -20,7 +20,7 @@
         <form asp-action="SqlExecutor" method="post" class="js-status-token">
             @Html.AntiForgeryToken()
             <label for="Sql" class="sr-only">SQL</label>
-            <textarea id="Sql" name="Sql" rows="10" style="width:100%; resize:vertical; padding:12px; font-family:Consolas, monospace;">@Model.Sql</textarea>
+            <textarea id="Sql" name="Sql" rows="2" class="input input-textarea" style="font-family:Consolas, monospace;">@Model.Sql</textarea>
             <div class="header-actions" style="margin-top: 12px; justify-content:flex-start;">
                 <button type="submit" class="btn">Executar</button>
             </div>

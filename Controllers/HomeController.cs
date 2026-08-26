@@ -38,11 +38,6 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(CriarChamadoViewModel model)
     {
-        if (model.Periodo != "Manhã" && model.Periodo != "Tarde")
-        {
-            ModelState.AddModelError(nameof(model.Periodo), "Selecione Manhã ou Tarde.");
-        }
-
         var nomeSolicitante = Limpar(model.NomeSolicitante);
         InventarioItem? inventario = null;
         if (nomeSolicitante != null && NomePermitido(nomeSolicitante))
@@ -73,7 +68,7 @@ public class HomeController : Controller
             NomeSolicitante = inventario!.PessoaResponsavel!.Trim(),
             InventarioItemId = inventario.Id,
             Setor = inventario.Setor?.Nome ?? "Não informado",
-            Periodo = model.Periodo,
+            Periodo = ObterPeriodoAtual(),
             DescricaoProblema = Limpar(model.DescricaoProblema),
             Situacao = "Aberto",
             CriadoEm = DateTimeOffset.UtcNow
@@ -107,6 +102,14 @@ public class HomeController : Controller
     private static bool NomePermitido(string nome)
     {
         return !NomesOcultos.Any(termo => nome.Contains(termo, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string ObterPeriodoAtual()
+    {
+        var agora = DateTime.Now;
+        return agora.Hour < 12 || (agora.Hour == 12 && agora.Minute == 0)
+            ? "Manhã"
+            : "Tarde";
     }
 
     private static string? Limpar(string? valor)

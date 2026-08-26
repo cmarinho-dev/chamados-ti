@@ -157,19 +157,24 @@
 })();
 
 (() => {
+  const resizeTextarea = (textarea) => {
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  document.querySelectorAll("textarea.input-textarea").forEach((textarea) => {
+    resizeTextarea(textarea);
+    textarea.addEventListener("input", () => resizeTextarea(textarea));
+  });
+})();
+
+(() => {
   const form = document.querySelector("[data-open-ticket-form]");
   if (!form) return;
 
   const personInput = form.querySelector("[data-first-field]");
-  const periodSelect = form.querySelector("[data-next-field]");
   const descriptionInput = form.querySelector("[data-description-field]");
-  const placeholderSelects = form.querySelectorAll(".js-placeholder-select");
   const storageKey = "chamadosTI.openTicketDraft";
-
-  const syncSelectPlaceholder = (select) => {
-    const hasValue = String(select.value || "").trim().length > 0;
-    select.classList.toggle("is-placeholder", !hasValue);
-  };
 
   const loadDraft = () => {
     try {
@@ -180,11 +185,9 @@
         if (personInput && typeof data.nome === "string" && data.nome.trim()) {
           personInput.value = data.nome;
         }
-        if (periodSelect && typeof data.periodo === "string" && data.periodo.trim()) {
-          periodSelect.value = data.periodo;
-        }
         if (descriptionInput && typeof data.descricao === "string") {
           descriptionInput.value = data.descricao;
+          descriptionInput.dispatchEvent(new Event("input"));
         }
       }
     } catch {
@@ -196,7 +199,6 @@
     try {
       const payload = {
         nome: personInput ? personInput.value.trim() : "",
-        periodo: periodSelect ? periodSelect.value : "",
         descricao: descriptionInput ? descriptionInput.value : ""
       };
       window.localStorage.setItem(storageKey, JSON.stringify(payload));
@@ -206,12 +208,7 @@
   };
 
   loadDraft();
-  placeholderSelects.forEach((select) => {
-    syncSelectPlaceholder(select);
-    select.addEventListener("change", () => syncSelectPlaceholder(select));
-  });
   personInput?.addEventListener("input", saveDraft);
-  periodSelect?.addEventListener("change", saveDraft);
   descriptionInput?.addEventListener("input", saveDraft);
 
   form.addEventListener("submit", saveDraft);
@@ -220,14 +217,6 @@
     if (event.key !== "Enter") return;
 
     if (event.target === personInput) {
-      event.preventDefault();
-      if (periodSelect) {
-        periodSelect.focus();
-      }
-      return;
-    }
-
-    if (event.target === periodSelect) {
       event.preventDefault();
       descriptionInput?.focus();
     }

@@ -135,7 +135,7 @@
                                     @Html.AntiForgeryToken()
                                     <div class="field">
                                         <label for="parecer-@chamado.Id">Parecer e o que foi feito</label>
-                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" maxlength="2000" required placeholder="Descreva a solução aplicada">@chamado.ParecerFinal</textarea>
+                                        <textarea id="parecer-@chamado.Id" name="parecerFinal" class="input input-textarea" rows="2" maxlength="2000" required placeholder="Descreva a solução aplicada">@chamado.ParecerFinal</textarea>
                                     </div>
                                     <button type="submit" class="btn primary">Finalizar chamado</button>
                                 </form>

@@ -304,8 +304,10 @@ label {
 }
 
 .input-textarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: calc(3em + 22px);
+  line-height: 1.5;
+  resize: none;
+  overflow-y: hidden;
 }
 
 .input.multi {
