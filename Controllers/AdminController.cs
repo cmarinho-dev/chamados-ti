@@ -207,6 +207,28 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost("excluir/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ExcluirChamado(int id)
+    {
+        if (!EstaAutenticado())
+        {
+            return Unauthorized();
+        }
+
+        var chamado = await _db.Chamados.FirstOrDefaultAsync(c => c.Id == id);
+        if (chamado == null)
+        {
+            return NotFound();
+        }
+
+        _db.Chamados.Remove(chamado);
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = $"Chamado #{id} removido com sucesso.";
+        return RedirectToAction(nameof(Index));
+    }
+
     [HttpPost("limpar")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Limpar()

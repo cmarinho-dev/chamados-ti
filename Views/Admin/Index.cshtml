@@ -59,7 +59,13 @@
                     <article class="ticket" data-ticket-id="@chamado.Id" data-status="@chamado.Situacao">
                         <div class="ticket-header">
                             <strong>#@chamado.Id — @chamado.NomeSolicitante</strong>
-                            <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLowerInvariant()}")">@chamado.Situacao</div>
+                            <div class="ticket-header-actions">
+                                <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLowerInvariant()}")">@chamado.Situacao</div>
+                                <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="ticket-meta">
