@@ -94,7 +94,7 @@
                             <div class="ticket-actions">
                                 <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                    <button type="submit" class="btn danger">Excluir</button>
                                 </form>
                                 <form asp-action="ReabrirChamado" asp-route-id="@chamado.Id" method="post">
                                     @Html.AntiForgeryToken()
@@ -111,7 +111,7 @@
                                 </div>
                                 <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" class="ticket-actions" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                    <button type="submit" class="btn danger">Excluir</button>
                                 </form>
                             }
                             else
@@ -124,7 +124,7 @@
                                     <div class="ticket-actions">
                                         <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                            <button type="submit" class="btn danger">Excluir</button>
                                         </form>
                                         <button type="button" class="btn ghost" data-dialog-open="responsavel-dialog-@chamado.Id">
                                             @(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Definir responsável")
