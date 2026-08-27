@@ -550,17 +550,6 @@ label {
   font-size: 0.95rem;
 }
 
-.ticket-header-actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.ticket-header-actions form {
-  margin: 0;
-}
-
 .ticket-meta {
   display: flex;
   justify-content: space-between;

@@ -59,13 +59,7 @@
                     <article class="ticket" data-ticket-id="@chamado.Id" data-status="@chamado.Situacao">
                         <div class="ticket-header">
                             <strong>#@chamado.Id — @chamado.NomeSolicitante</strong>
-                            <div class="ticket-header-actions">
-                                <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLowerInvariant()}")">@chamado.Situacao</div>
-                                <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
-                                </form>
-                            </div>
+                            <div class="pill status @($"status-{chamado.Situacao.Replace(" ", "-").ToLowerInvariant()}")">@chamado.Situacao</div>
                         </div>
 
                         <div class="ticket-meta">
@@ -97,10 +91,16 @@
                                     <span class="muted">Finalizado em @chamado.FinalizadoEm.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm")</span>
                                 }
                             </div>
-                            <form asp-action="ReabrirChamado" asp-route-id="@chamado.Id" method="post" class="ticket-actions">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn ghost">Reabrir chamado</button>
-                            </form>
+                            <div class="ticket-actions">
+                                <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                </form>
+                                <form asp-action="ReabrirChamado" asp-route-id="@chamado.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn ghost">Reabrir chamado</button>
+                                </form>
+                            </div>
                         }
                         else
                         {
@@ -109,6 +109,10 @@
                                 <div class="alert danger-alert">
                                     Cadastre alguém na <a asp-controller="Administrativo" asp-action="EquipeTi"><u>Equipe de TI</u></a> para iniciar o atendimento.
                                 </div>
+                                <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" class="ticket-actions" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                </form>
                             }
                             else
                             {
@@ -118,6 +122,10 @@
                                         <strong>@(chamado.TecnicoTi?.Nome ?? "Não definido")</strong>
                                     </div>
                                     <div class="ticket-actions">
+                                        <form asp-action="ExcluirChamado" asp-route-id="@chamado.Id" method="post" onsubmit="return confirm('Deseja remover somente o chamado #@chamado.Id?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn danger icon-btn">Excluir</button>
+                                        </form>
                                         <button type="button" class="btn ghost" data-dialog-open="responsavel-dialog-@chamado.Id">
                                             @(chamado.TecnicoTiId.HasValue ? "Alterar responsável" : "Definir responsável")
                                         </button>
